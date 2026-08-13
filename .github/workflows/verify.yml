@@ -1,0 +1,39 @@
+name: Verify standalone release
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  static-release-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check inline application JavaScript
+        shell: bash
+        run: |
+          sed -n '/^    <script>$/,/^    <\/script>$/p' md-reader.html | sed '1d;$d' > /tmp/md-reader-app.js
+          test -s /tmp/md-reader-app.js
+          node --check /tmp/md-reader-app.js
+
+      - name: Check standalone boundaries and documentation
+        shell: bash
+        run: |
+          test ! -e package.json
+          test ! -e package-lock.json
+          test ! -e node_modules
+          test -f README.md
+          test -f FEATURES.md
+          test -f ACCESSIBILITY.md
+          test -f SECURITY.md
+          test -f THIRD_PARTY_NOTICES.md
+          grep -Fq 'connect-src '\''none'\''' md-reader.html
+          grep -Fq '<meta name="version" content="1.0.0">' md-reader.html
+          if grep -Eq 'mdrNative|<script[^>]+src="https?://|<link[^>]+rel="stylesheet"[^>]+href="https?://' md-reader.html; then
+            echo 'Native API or remote runtime dependency found in standalone HTML.' >&2
+            exit 1
+          fi

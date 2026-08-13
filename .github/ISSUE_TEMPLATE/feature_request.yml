@@ -1,0 +1,35 @@
+name: Feature request
+description: Suggest an improvement to the standalone edition
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem to solve
+      description: Describe the workflow problem before proposing an interface.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed improvement
+    validations:
+      required: true
+  - type: dropdown
+    id: boundary
+    attributes:
+      label: Edition
+      options:
+        - Shared by standalone and app
+        - Standalone HTML
+        - Desktop app only
+        - Unsure
+    validations:
+      required: true
+  - type: textarea
+    id: access
+    attributes:
+      label: Accessibility and agent navigation
+      description: Explain expected keyboard, screen-reader or semantic-navigation behaviour.
