@@ -1,10 +1,10 @@
 # Agent instructions
 
-This repository is the package-free, standalone edition of MD Reader.
+This repository is the package-free, standalone edition of Markarium.md.
 
 ## Source of truth
 
-- `md-reader.html` is both the production artifact and the standalone source.
+- `index.html` is both the production artifact and the standalone source.
 - It must continue to open directly from disk and from GitHub Pages.
 - Do not add package manifests, generated dependency directories, remote CDNs, build steps, native APIs or desktop-only integrations.
 - The desktop edition lives in a separate repository. Mermaid, native file integration, automatic local-image resolution and richer desktop exports stay there unless a self-contained, privacy-preserving standalone implementation is deliberately approved.

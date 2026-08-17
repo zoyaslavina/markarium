@@ -10,7 +10,7 @@ Please use GitHub's **Report a vulnerability** private-reporting flow for this r
 
 Useful reports include:
 
-- the affected browser and MD Reader version;
+- the affected browser and Markarium.md version;
 - a minimal Markdown or annotation JSON sample with private content removed;
 - the expected and observed behaviour;
 - whether the issue can execute active content, access a network resource, expose local data or modify a file without clear user action.

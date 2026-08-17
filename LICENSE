@@ -76,11 +76,11 @@ The **licensor** is the individual or entity offering these terms, and the **sof
 
 ---
 
-This project bundles third-party components inside md-reader.html, each under
+This project bundles third-party components inside index.html, each under
 its own license (notices are preserved in the file header and in the README).
 These components keep their original permissive licenses:
 
   - marked           - MIT                      - https://github.com/markedjs/marked
   - DOMPurify        - Apache-2.0 / MPL-2.0      - https://github.com/cure53/DOMPurify
   - KaTeX            - MIT                      - https://github.com/KaTeX/KaTeX
-  - Playfair Display - SIL Open Font License 1.1 - https://fonts.google.com/specimen/Playfair+Display
+  - Inter            - SIL Open Font License 1.1 - https://github.com/rsms/inter

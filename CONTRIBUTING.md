@@ -1,6 +1,6 @@
 # Contributing
 
-Thank you for helping improve MD Reader. This repository deliberately has no package installation or build step: the shipped `md-reader.html` is the standalone product.
+Thank you for helping improve Markarium.md. This repository deliberately has no package installation or build step: the shipped `index.html` is the standalone product.
 
 ## Before proposing a change
 

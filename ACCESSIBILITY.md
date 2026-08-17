@@ -1,6 +1,6 @@
 # Accessibility
 
-Accessibility is part of the standalone HTML edition, not an app-only feature. MD Reader is designed so that reading, navigation, editing and review do not depend exclusively on pointer coordinates or colour.
+Accessibility is part of the standalone HTML edition, not an app-only feature. Markarium.md is designed so that reading, navigation, editing and review do not depend exclusively on pointer coordinates or colour.
 
 ## Included in 1.0.0
 

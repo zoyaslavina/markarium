@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#171817" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f4f1eb" media="(prefers-color-scheme: light)">
+  <meta name="description" content="{{META_DESCRIPTION}}">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="referrer" content="no-referrer">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="{{PRODUCT_NAME}} — private Markdown review environment">
+  <meta property="og:description" content="{{META_DESCRIPTION}}">
+  <meta property="og:url" content="{{SITE_URL}}">
+  <meta property="og:image" content="{{SOCIAL_IMAGE_URL}}">
+  <meta property="og:image:alt" content="{{SOCIAL_IMAGE_ALT}}">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="{{SITE_URL}}">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'unsafe-inline'; script-src 'none'; font-src 'none'; connect-src 'none'; frame-src 'none'; object-src 'none'; worker-src 'none'; media-src 'none'; form-action 'none'; base-uri 'none'; frame-ancestors 'none'">
+  <title>{{PRODUCT_NAME}} — private Markdown review environment</title>
+  <style>
+    :root {
+      --bg: #f4f1eb;
+      --surface: #fbfaf7;
+      --surface-raised: #ffffff;
+      --text: #26231f;
+      --muted: #6f6860;
+      --line: #d9d2c8;
+      --accent: #177f75;
+      --accent-strong: #0e625a;
+      --accent-soft: #d9efeb;
+      --code: #e9e3da;
+      --focus: #8b4800;
+      --shadow: 0 24px 60px rgba(58, 48, 39, .12);
+      --max: 75rem;
+      --radius: 1.25rem;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #171817;
+        --surface: #1e1e1c;
+        --surface-raised: #242421;
+        --text: #f0ece6;
+        --muted: #aaa39a;
+        --line: #3a3833;
+        --accent: #74ded2;
+        --accent-strong: #9de9df;
+        --accent-soft: #203c38;
+        --code: #2c2b27;
+        --focus: #f7b85b;
+        --shadow: 0 28px 70px rgba(0, 0, 0, .36);
+      }
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 1rem;
+      line-height: 1.65;
+      text-rendering: optimizeLegibility;
+    }
+
+    a { color: var(--accent-strong); text-underline-offset: .18em; }
+    a:hover { text-decoration-thickness: .14em; }
+    a:focus-visible, summary:focus-visible {
+      outline: .2rem solid var(--focus);
+      outline-offset: .25rem;
+      border-radius: .2rem;
+    }
+    img { display: block; max-width: 100%; height: auto; }
+    h1, h2, h3 { margin: 0; line-height: 1.08; text-wrap: balance; }
+    h1, h2 { font-family: Georgia, "Times New Roman", serif; font-weight: 600; }
+    h1 { max-width: 13ch; font-size: clamp(3rem, 8vw, 6.8rem); letter-spacing: -.055em; }
+    h2 { font-size: clamp(2.15rem, 5vw, 4rem); letter-spacing: -.035em; }
+    h3 { font-size: 1.14rem; }
+    p { margin: 0; }
+
+    .skip-link {
+      position: fixed;
+      z-index: 100;
+      top: .8rem;
+      left: .8rem;
+      transform: translateY(-180%);
+      padding: .7rem 1rem;
+      background: var(--text);
+      color: var(--bg);
+      border-radius: .5rem;
+    }
+    .skip-link:focus { transform: translateY(0); }
+    .wrap { width: min(calc(100% - 2rem), var(--max)); margin-inline: auto; }
+    .draft-note {
+      padding: .55rem 1rem;
+      border-bottom: 1px solid var(--line);
+      background: var(--code);
+      color: var(--muted);
+      text-align: center;
+      font-size: .84rem;
+      letter-spacing: .03em;
+    }
+
+    .site-header {
+      position: sticky;
+      z-index: 20;
+      top: 0;
+      border-bottom: 1px solid color-mix(in srgb, var(--line) 80%, transparent);
+      background: color-mix(in srgb, var(--bg) 88%, transparent);
+      backdrop-filter: blur(18px);
+    }
+    .header-inner {
+      display: flex;
+      min-height: 4.8rem;
+      align-items: center;
+      justify-content: space-between;
+      gap: 2rem;
+    }
+    .brand {
+      color: var(--text);
+      font-size: 1.15rem;
+      font-weight: 720;
+      letter-spacing: -.025em;
+      text-decoration: none;
+    }
+    .brand .dot-md { color: var(--accent-strong); }
+    .site-nav { display: flex; align-items: center; gap: 1.25rem; }
+    .site-nav a { color: var(--muted); font-size: .9rem; font-weight: 650; text-decoration: none; }
+    .site-nav a:hover { color: var(--text); }
+
+    .hero { padding: clamp(5rem, 11vw, 9rem) 0 4rem; }
+    .eyebrow {
+      margin-bottom: 1.35rem;
+      color: var(--accent-strong);
+      font-size: .78rem;
+      font-weight: 780;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+    .hero-copy {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(18rem, .72fr);
+      align-items: end;
+      gap: clamp(2rem, 7vw, 7rem);
+    }
+    .lede { max-width: 34rem; color: var(--muted); font-size: clamp(1.1rem, 2.5vw, 1.38rem); }
+    .actions { display: flex; flex-wrap: wrap; gap: .8rem; margin-top: 2rem; }
+    .button {
+      display: inline-flex;
+      min-height: 3rem;
+      align-items: center;
+      justify-content: center;
+      padding: .72rem 1.05rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--text);
+      font-weight: 720;
+      text-decoration: none;
+    }
+    .button.primary { border-color: var(--accent); background: var(--accent); color: #071d1a; }
+    @media (prefers-color-scheme: light) { .button.primary { color: #fff; } }
+    .button:hover { transform: translateY(-1px); }
+    .microcopy { margin-top: 1rem; color: var(--muted); font-size: .86rem; }
+
+    .proof-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      margin-top: clamp(4rem, 9vw, 7.5rem);
+      border-block: 1px solid var(--line);
+    }
+    .proof-strip div { padding: 1.1rem 1rem; text-align: center; }
+    .proof-strip div + div { border-left: 1px solid var(--line); }
+    .proof-strip strong { display: block; font-size: .94rem; }
+    .proof-strip span { color: var(--muted); font-size: .76rem; }
+
+    .product-shot {
+      position: relative;
+      margin: 0 auto;
+      padding: 0 0 clamp(5rem, 11vw, 9rem);
+    }
+    .product-shot::before {
+      position: absolute;
+      z-index: -1;
+      inset: 10% 9% 18%;
+      border-radius: 50%;
+      background: color-mix(in srgb, var(--accent) 18%, transparent);
+      filter: blur(60px);
+      content: "";
+    }
+    .product-shot img { border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
+    .product-shot figcaption { margin-top: 1rem; color: var(--muted); font-size: .82rem; text-align: center; }
+
+    .section { padding: clamp(4.8rem, 10vw, 8rem) 0; border-top: 1px solid var(--line); }
+    .section-heading { display: grid; grid-template-columns: .72fr 1.28fr; gap: clamp(2rem, 7vw, 7rem); align-items: start; }
+    .section-intro { max-width: 42rem; color: var(--muted); font-size: 1.12rem; }
+    .feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 3.5rem; }
+    .card { padding: 1.5rem; border: 1px solid var(--line); border-radius: 1rem; background: var(--surface); }
+    .card-number { display: block; margin-bottom: 3.2rem; color: var(--accent-strong); font-size: .78rem; font-weight: 750; }
+    .card p { margin-top: .7rem; color: var(--muted); }
+
+    .anchor-demo {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      overflow: hidden;
+      margin-top: 3.5rem;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+    }
+    .anchor-copy, .anchor-note { padding: clamp(1.5rem, 5vw, 3.5rem); }
+    .anchor-copy { font-family: Georgia, "Times New Roman", serif; font-size: clamp(1.35rem, 3vw, 2.1rem); line-height: 1.5; }
+    .anchor-copy mark { padding: .04em .12em; background: var(--accent-soft); color: inherit; border-bottom: .12em solid var(--accent); }
+    .anchor-note { border-left: 1px solid var(--line); background: var(--surface-raised); }
+    .note-label { color: var(--accent-strong); font-size: .75rem; font-weight: 760; letter-spacing: .1em; text-transform: uppercase; }
+    .anchor-note blockquote { margin: 1.2rem 0 0; font-size: 1.07rem; }
+    .anchor-note footer { margin-top: 1.25rem; color: var(--muted); font-size: .84rem; }
+
+    .two-column { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 3.5rem; }
+    .panel { min-height: 21rem; padding: clamp(1.7rem, 4vw, 3rem); border: 1px solid var(--line); border-radius: var(--radius); }
+    .panel.accent { border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); background: var(--accent-soft); }
+    .panel p { max-width: 34rem; margin-top: 1rem; color: var(--muted); }
+    .panel ul { margin: 2rem 0 0; padding-left: 1.2rem; }
+    .panel li + li { margin-top: .7rem; }
+    .code-line { display: inline-block; margin-top: 2rem; padding: .65rem .75rem; background: var(--code); border-radius: .55rem; font: .82rem ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+    .compatibility { width: 100%; margin-top: 3.5rem; border-collapse: collapse; }
+    .compatibility th, .compatibility td { padding: 1rem; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    .compatibility th { font-size: .82rem; letter-spacing: .04em; text-transform: uppercase; }
+    .compatibility td { color: var(--muted); }
+    .compatibility td:first-child { color: var(--text); font-weight: 680; }
+
+    .details-list { margin-top: 2.5rem; border-top: 1px solid var(--line); }
+    details { border-bottom: 1px solid var(--line); }
+    summary { padding: 1.2rem 0; cursor: pointer; font-weight: 720; }
+    details p { max-width: 52rem; padding: 0 0 1.4rem; color: var(--muted); }
+
+    .final-cta { padding: clamp(5rem, 12vw, 10rem) 0; text-align: center; }
+    .final-cta h2 { max-width: 15ch; margin-inline: auto; }
+    .final-cta p { max-width: 38rem; margin: 1.4rem auto 0; color: var(--muted); font-size: 1.08rem; }
+    .final-cta .actions { justify-content: center; }
+
+    .site-footer { padding: 2.5rem 0; border-top: 1px solid var(--line); color: var(--muted); font-size: .86rem; }
+    .footer-inner { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1.5rem; }
+    .footer-links { display: flex; flex-wrap: wrap; gap: 1rem; }
+    .footer-links a { color: var(--muted); }
+
+    .placeholder {
+      padding: .04em .3em;
+      outline: 1px dashed var(--focus);
+      outline-offset: .12em;
+      border-radius: .2rem;
+    }
+
+    @media (max-width: 54rem) {
+      .site-nav a:not(.nav-primary) { display: none; }
+      .hero-copy, .section-heading { grid-template-columns: 1fr; }
+      .hero-copy { align-items: start; }
+      .proof-strip { grid-template-columns: 1fr 1fr; }
+      .proof-strip div:nth-child(3) { border-left: 0; border-top: 1px solid var(--line); }
+      .proof-strip div:nth-child(4) { border-top: 1px solid var(--line); }
+      .feature-grid { grid-template-columns: 1fr; }
+      .card-number { margin-bottom: 1.5rem; }
+      .anchor-demo, .two-column { grid-template-columns: 1fr; }
+      .anchor-note { border-top: 1px solid var(--line); border-left: 0; }
+    }
+
+    @media (max-width: 36rem) {
+      .wrap { width: min(calc(100% - 1.25rem), var(--max)); }
+      .proof-strip { grid-template-columns: 1fr; }
+      .proof-strip div + div { border-top: 1px solid var(--line); border-left: 0; }
+      .compatibility, .compatibility tbody, .compatibility tr, .compatibility td { display: block; }
+      .compatibility thead { position: absolute; overflow: hidden; width: 1px; height: 1px; clip: rect(0 0 0 0); }
+      .compatibility tr { padding: 1rem 0; border-bottom: 1px solid var(--line); }
+      .compatibility td { padding: .2rem 0; border: 0; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .button:hover { transform: none; }
+    }
+
+    @media (forced-colors: active) {
+      .site-header { background: Canvas; }
+      .button, .card, .panel, .anchor-demo, .product-shot img { border: 1px solid CanvasText; }
+      .button.primary { background: Highlight; color: HighlightText; }
+      .placeholder { outline-color: LinkText; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <div class="draft-note" role="note">Internal Pages draft — highlighted fields are placeholders and this page is set to noindex.</div>
+
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="#top" aria-label="{{PRODUCT_NAME}}, home">
+        <span class="placeholder">{{NAME}}</span><span class="dot-md">.md</span>
+      </a>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="#features">Features</a>
+        <a href="#privacy">Privacy</a>
+        <a href="#accessibility">Accessibility</a>
+        <a class="nav-primary" href="../index.html">Open web edition</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="top" aria-labelledby="hero-title">
+      <div class="wrap">
+        <p class="eyebrow">One HTML file · private by design</p>
+        <div class="hero-copy">
+          <h1 id="hero-title">Markdown, ready for real work.</h1>
+          <div>
+            <p class="lede">Read, annotate and edit Markdown in a focused environment where comments and tasks stay connected to the text—even when it moves.</p>
+            <div class="actions">
+              <a class="button primary" href="../index.html">Open the web edition</a>
+              <a class="button" href="../index.html" download>Download one HTML file</a>
+            </div>
+            <p class="microcopy">No account, installation, analytics, CDN or automatic network calls.</p>
+          </div>
+        </div>
+
+        <div class="proof-strip" aria-label="Product characteristics">
+          <div><strong>One file</strong><span>No build or packages</span></div>
+          <div><strong>Local-first</strong><span>Your documents stay with you</span></div>
+          <div><strong>Review-ready</strong><span>Comments, tasks and highlights</span></div>
+          <div><strong>Accessible</strong><span>Keyboard and semantic navigation</span></div>
+        </div>
+      </div>
+    </section>
+
+    <figure class="wrap product-shot">
+      <img src="../screenshot-notes.png" width="1600" height="1000" alt="The Markdown environment showing a document outline, selected text in the reader and an attached task in the notes panel.">
+      <figcaption>Review a document without turning every observation into another chat message.</figcaption>
+    </figure>
+
+    <section class="section" id="features" aria-labelledby="features-title">
+      <div class="wrap">
+        <div class="section-heading">
+          <h2 id="features-title">More than a reader.</h2>
+          <p class="section-intro">The standalone edition brings the complete reading, review and editing loop into a portable file you can keep, inspect and use directly from disk.</p>
+        </div>
+
+        <div class="feature-grid">
+          <article class="card">
+            <span class="card-number" aria-hidden="true">01</span>
+            <h3>Read and navigate</h3>
+            <p>GitHub Flavored Markdown, offline formulas, document outline, search, tabs, wiki-links, backlinks, reading progress and adaptable typography.</p>
+          </article>
+          <article class="card">
+            <span class="card-number" aria-hidden="true">02</span>
+            <h3>Review in context</h3>
+            <p>Attach highlights, comments and checkbox tasks directly to selected text. Find every note through visible markers and an explicit Go to action.</p>
+          </article>
+          <article class="card">
+            <span class="card-number" aria-hidden="true">03</span>
+            <h3>Edit and hand off</h3>
+            <p>Edit raw Markdown, clean common AI citation markers, copy code or tables, export review data and save a clean Markdown document.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="anchors-title">
+      <div class="wrap">
+        <div class="section-heading">
+          <h2 id="anchors-title">Feedback that remembers where it belongs.</h2>
+          <p class="section-intro">Anchors combine the selected quote with its nearby text, section and block context. Small edits or movement do not have to turn useful review notes into detached fragments.</p>
+        </div>
+
+        <div class="anchor-demo">
+          <p class="anchor-copy">The team agreed to keep the scope focused and <mark>revisit the release criteria</mark> after the first review.</p>
+          <aside class="anchor-note" aria-label="Example attached task">
+            <span class="note-label">Attached task</span>
+            <blockquote>Confirm the release criteria with the team.</blockquote>
+            <footer>Still attached after a small edit or text movement.</footer>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="accessibility" aria-labelledby="accessibility-title">
+      <div class="wrap">
+        <div class="section-heading">
+          <h2 id="accessibility-title">Navigable by people and agents.</h2>
+          <p class="section-intro">Accessibility and machine navigation share the same foundation: meaningful structure, stable relationships, named controls and workflows that do not depend on visual coordinates.</p>
+        </div>
+
+        <div class="two-column">
+          <article class="panel">
+            <h3>For people</h3>
+            <p>Semantic landmarks, keyboard paths, visible focus, live status messages, reduced motion, forced-colour support and system, light, dark and high-contrast themes.</p>
+            <span class="code-line">Tab → Notes → Go to → Edit</span>
+          </article>
+          <article class="panel accent">
+            <h3>For software agents</h3>
+            <p>Stable heading identifiers, explicit control relationships, named copy operations and structured table/code controls reduce ambiguous, coordinate-only interaction.</p>
+            <span class="code-line">heading → selection → comment → export</span>
+          </article>
+        </div>
+        <p class="microcopy">Designed and automatically checked for accessibility; not presented as formal WCAG certification. <a href="../ACCESSIBILITY.md">Read the accessibility statement</a>.</p>
+      </div>
+    </section>
+
+    <section class="section" id="privacy" aria-labelledby="privacy-title">
+      <div class="wrap">
+        <div class="section-heading">
+          <h2 id="privacy-title">Private is the default, not a setting.</h2>
+          <div>
+            <p class="section-intro">The standalone edition has no account, analytics or telemetry. Its parser, sanitizer, formula renderer, fonts and interface assets are bundled into the HTML file.</p>
+            <ul>
+              <li>Automatic network connections are denied by Content Security Policy.</li>
+              <li>Rendered Markdown is sanitized before it enters the document.</li>
+              <li>Remote document images are replaced with a blocked-resource notice.</li>
+              <li>Files, clipboard writes and external links require an explicit action.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="details-list">
+          <details>
+            <summary>Where do documents and annotations go?</summary>
+            <p>They stay in browser storage or in files you explicitly open, save, import or export. The application itself does not upload document content. The hosted page is delivered by GitHub Pages, whose infrastructure has its own privacy practices.</p>
+          </details>
+          <details>
+            <summary>Does it work offline?</summary>
+            <p>Yes. Download the HTML file and open it directly from disk. No package installation or build process is required.</p>
+          </details>
+          <details>
+            <summary>Can I inspect what is shipped?</summary>
+            <p>Yes. The standalone source and production artifact are the same HTML file. Bundled third-party components and their licences are documented in the repository.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="compatibility-title">
+      <div class="wrap">
+        <div class="section-heading">
+          <h2 id="compatibility-title">Know the boundaries.</h2>
+          <p class="section-intro">The portable edition is intentionally honest about browser differences and the features reserved for the forthcoming desktop app.</p>
+        </div>
+
+        <table class="compatibility">
+          <thead>
+            <tr><th scope="col">Area</th><th scope="col">Standalone web edition</th><th scope="col">Desktop app</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Saving</td><td>Direct save in supporting Chrome/Edge versions; download fallback elsewhere.</td><td>Native open and save integration.</td></tr>
+            <tr><td>Math</td><td>Offline KaTeX formulas included now.</td><td>Included through the shared workflow.</td></tr>
+            <tr><td>Local images</td><td>Embedded data images display; relative and remote images are blocked.</td><td>Automatic resolution of images beside the Markdown file.</td></tr>
+            <tr><td>Diagrams and syntax</td><td>GitHub Flavored Markdown, tables, code and formulas.</td><td>Mermaid, expanded syntax tooling and richer exports.</td></tr>
+          </tbody>
+        </table>
+        <p class="microcopy"><span class="placeholder">{{DESKTOP_APP_STATUS}}</span> · Planned features will only be described as available after verification.</p>
+      </div>
+    </section>
+
+    <section class="final-cta" aria-labelledby="final-title">
+      <div class="wrap">
+        <p class="eyebrow">Version <span class="placeholder">{{VERSION}}</span></p>
+        <h2 id="final-title">Keep the document. Keep the context.</h2>
+        <p>Open the hosted edition or download the complete environment as one self-contained HTML file.</p>
+        <div class="actions">
+          <a class="button primary" href="../index.html">Open the web edition</a>
+          <a class="button" href="../index.html" download>Download HTML</a>
+          <a class="button" href="{{REPOSITORY_URL}}">View source</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-inner">
+      <p>© 2026 Zoya Slavina · Free for noncommercial use.</p>
+      <nav class="footer-links" aria-label="Project information">
+        <a href="../README.md">Documentation</a>
+        <a href="../ACCESSIBILITY.md">Accessibility</a>
+        <a href="../SECURITY.md">Security</a>
+        <a href="../PRIVACY.md">Privacy</a>
+        <a href="../LICENSE">Licence</a>
+        <a href="{{SUPPORT_URL}}">Support</a>
+      </nav>
+    </div>
+  </footer>
+</body>
+</html>

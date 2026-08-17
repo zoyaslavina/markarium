@@ -2,34 +2,34 @@
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="logo-word-on-dark.png">
-  <img alt="MD Reader" src="logo-word-on-light.png" width="300">
+  <img alt="Markarium.md" src="logo-word-on-light.png" width="300">
 </picture>
 
 ### A private Markdown reader, editor and review workspace in one HTML file
 
-Read, annotate and edit Markdown in your browser. No account, server, analytics, CDN or build step.
+Read, annotate and edit Markdown in your browser. Hand your comments to a teammate or an AI agent to act on, or take in theirs. No account, server, analytics, CDN or build step.
 
 </div>
 
 ---
 
-**MD Reader** is the single, self-contained [`md-reader.html`](md-reader.html). It renders Markdown, supports durable highlights, comments and tasks, edits the original source, and exports the result. The parser, sanitizer, math renderer, fonts and interface assets are embedded in the file, while a strict Content Security Policy prevents automatic network access.
+**Markarium.md** is the single, self-contained [`index.html`](index.html). It renders Markdown, supports durable highlights, comments and tasks, edits the original source, and exports the result. The parser, sanitizer, math renderer, fonts and interface assets are embedded in the file, while a strict Content Security Policy prevents automatic network access.
 
 <p align="center">
-  <a href="https://zoyaslavina.github.io/md-reader/md-reader.html"><strong>Open the web edition</strong></a>
+  <a href="https://zoyaslavina.github.io/markarium/"><strong>Open the web edition</strong></a>
   &nbsp;·&nbsp;
-  <a href="https://github.com/zoyaslavina/md-reader/releases/latest/download/md-reader.html"><strong>Download the latest HTML</strong></a>
+  <a href="https://github.com/zoyaslavina/markarium/releases/latest/download/markarium.html"><strong>Download the latest HTML</strong></a>
   &nbsp;·&nbsp;
   <a href="CHANGELOG.md">Changelog</a>
 </p>
 
 <p align="center">
-  <img src="screenshot.png" alt="MD Reader showing a Markdown document, outline and highlighted passages" width="900">
+  <img src="screenshot.png" alt="Markarium.md showing a Markdown document, outline and highlighted passages" width="900">
 </p>
 
 ## Use it
 
-1. Download [`md-reader.html`](md-reader.html).
+1. Download [`index.html`](index.html).
 2. Open it in a modern browser.
 3. Choose **Open file** or drag a Markdown file onto the reader.
 
@@ -81,18 +81,18 @@ The product boundary and release checklist live in [`FEATURES.md`](FEATURES.md),
 
 ## Why I built this
 
-I began MD Reader while reviewing LLM-generated drafts and exchanging documents with collaborators. Commenting inside a chat turned each observation into a new prompt; I wanted to read the whole document, attach feedback in context, and return one coherent review. That grew into a local-first reader where comments, tasks, highlights, citation cleanup and editing work together without an account or external service.
+I began Markarium.md while reviewing LLM-generated drafts and exchanging documents with collaborators. Commenting inside a chat turned each observation into a new prompt; I wanted to read the whole document, attach feedback in context, and return one coherent review. That grew into a local-first reader where comments, tasks, highlights, citation cleanup and editing work together without an account or external service.
 
 ## Built with
 
-Everything below is bundled inside `md-reader.html`; none is fetched from a CDN at runtime.
+Everything below is bundled inside `index.html`; none is fetched from a CDN at runtime.
 
 | Component | Bundled version | Purpose | License |
 | --- | --- | --- | --- |
 | [marked](https://github.com/markedjs/marked) | 18.0.7 | Markdown parser | MIT |
 | [DOMPurify](https://github.com/cure53/DOMPurify) | 3.4.9 | HTML sanitizer | Apache-2.0 / MPL-2.0 |
 | [KaTeX](https://katex.org) | 0.16.11 | Math rendering | MIT |
-| [Playfair Display](https://fonts.google.com/specimen/Playfair+Display) | bundled subset | Display font | SIL OFL 1.1 |
+| [Inter](https://github.com/rsms/inter) | bundled subset | Display font | SIL OFL 1.1 |
 
 The complete bundled-component notices are in [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
 

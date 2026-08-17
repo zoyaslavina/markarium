@@ -16,7 +16,7 @@ jobs:
       - name: Check inline application JavaScript
         shell: bash
         run: |
-          sed -n '/^    <script>$/,/^    <\/script>$/p' md-reader.html | sed '1d;$d' > /tmp/md-reader-app.js
+          sed -n '/^    <script>$/,/^    <\/script>$/p' index.html | sed '1d;$d' > /tmp/md-reader-app.js
           test -s /tmp/md-reader-app.js
           node --check /tmp/md-reader-app.js
 
@@ -31,9 +31,9 @@ jobs:
           test -f ACCESSIBILITY.md
           test -f SECURITY.md
           test -f THIRD_PARTY_NOTICES.md
-          grep -Fq 'connect-src '\''none'\''' md-reader.html
-          grep -Fq '<meta name="version" content="1.0.0">' md-reader.html
-          if grep -Eq 'mdrNative|<script[^>]+src="https?://|<link[^>]+rel="stylesheet"[^>]+href="https?://' md-reader.html; then
+          grep -Fq 'connect-src '\''none'\''' index.html
+          grep -Fq '<meta name="version" content="1.0.0">' index.html
+          if grep -Eq 'mdrNative|<script[^>]+src="https?://|<link[^>]+rel="stylesheet"[^>]+href="https?://' index.html; then
             echo 'Native API or remote runtime dependency found in standalone HTML.' >&2
             exit 1
           fi

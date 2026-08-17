@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta name="description" content="{{META_DESCRIPTION}}">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'self'; script-src 'none'; font-src 'none'; connect-src 'none'; frame-src 'none'; object-src 'none'; worker-src 'none'; form-action 'none'; base-uri 'none'; frame-ancestors 'none'">
+  <link rel="stylesheet" href="site.css">
+  <link rel="canonical" href="{{SITE_URL}}">
+  <title>{{PRODUCT_NAME}} — project journal</title>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <div class="draft-banner" role="note">Editorial GitHub Pages draft · placeholders remain · search indexing is disabled</div>
+
+  <header class="site-header">
+    <div class="wide header-inner">
+      <a class="identity" href="index.html" aria-label="{{PRODUCT_NAME}} project journal, home"><span class="placeholder">{{NAME}}</span><span>.md</span> / journal</a>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="index.html" aria-current="page">About</a>
+        <a href="journal.html">Journal</a>
+        <a href="../README.md">Documentation</a>
+        <a href="{{REPOSITORY_URL}}">GitHub</a>
+        <a href="../index.html">Open the reader</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <article>
+      <header class="masthead measure">
+        <p class="kicker">Project note · <span class="placeholder">{{PUBLICATION_DATE}}</span></p>
+        <h1>A Markdown environment built to keep the thinking attached.</h1>
+        <p class="dek">A single, private HTML file for reading, annotating and editing Markdown—with comments and tasks that remain connected to their text.</p>
+        <p class="byline">By Zoya Slavina · Standalone release <span class="placeholder">{{VERSION}}</span></p>
+        <p class="text-links"><a href="../index.html">Open the web edition</a><a href="../index.html" download>Download the HTML file</a><a href="{{REPOSITORY_URL}}">Browse the source</a></p>
+      </header>
+
+      <figure class="wide lead-image">
+        <img src="../screenshot-notes.png" width="1600" height="1000" alt="The Markdown environment with a document outline, selected text and an attached task in the notes panel.">
+        <figcaption>The standalone edition keeps reading, editing and contextual review in one interface. Screenshot will be replaced after the final rebrand.</figcaption>
+      </figure>
+
+      <section class="article-section" aria-labelledby="why-title">
+        <div class="measure">
+          <p class="section-label">Why this exists</p>
+          <h2 id="why-title">Review should not become another conversation to reconstruct.</h2>
+          <div class="prose">
+            <p>I began this project while reviewing LLM-generated drafts and exchanging documents with collaborators. Commenting inside a chat turned each observation into another prompt. The document was in one place; the reasoning about it accumulated somewhere else.</p>
+            <p>I wanted to read the whole text, attach feedback where it belonged, turn parts of that feedback into tasks, and return one coherent review. That became a local-first Markdown environment where reading, comments, editing and hand-off remain part of the same object.</p>
+            <p class="aside"><strong>Current premise:</strong> the useful unit is not a comment floating beside a document. It is a comment with enough textual context to find its way home after the document changes.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="article-section" aria-labelledby="principles-title">
+        <div class="wide">
+          <div class="measure">
+            <p class="section-label">Project principles</p>
+            <h2 id="principles-title">Small enough to understand. Capable enough to work in.</h2>
+            <p>The standalone edition is intentionally package-free and self-contained. Its constraints are part of the product, not merely a deployment choice.</p>
+          </div>
+          <div class="principles">
+            <article class="principle"><h3>Local-first</h3><p>No account, analytics, CDN or automatic network calls. Documents remain in browser storage or files the user explicitly handles.</p></article>
+            <article class="principle"><h3>Durable review</h3><p>Comments, highlights and tasks use their quote, surrounding text, section and block context to survive small edits and movement.</p></article>
+            <article class="principle"><h3>Accessible structure</h3><p>Keyboard paths, semantic regions, named controls, visible focus, high contrast and reduced motion are part of the HTML edition.</p></article>
+            <article class="principle"><h3>Agent-legible</h3><p>The same stable identifiers and explicit relationships that help assistive technology also make the interface easier for software agents to inspect.</p></article>
+          </div>
+        </div>
+      </section>
+
+      <section class="article-section" aria-labelledby="release-title">
+        <div class="measure">
+          <p class="section-label">Current release</p>
+          <h2 id="release-title">What is in the standalone edition now.</h2>
+          <div class="release-note">
+            <p class="release-meta">Version <span class="placeholder">{{VERSION}}</span> · <span class="placeholder">{{RELEASE_DATE}}</span></p>
+            <h3>Reading, review and editing in one file</h3>
+            <p>GitHub Flavored Markdown, offline KaTeX formulas, outline and search, multiple tabs, wiki-links and backlinks, raw source editing, resilient comments and tasks, citation cleanup, clean Markdown export and annotation import/export.</p>
+            <p class="text-links"><a href="../FEATURES.md">Full capability catalogue</a><a href="../CHANGELOG.md">Release history</a><a href="../ACCESSIBILITY.md">Accessibility statement</a><a href="../SECURITY.md">Security boundary</a></p>
+          </div>
+        </div>
+      </section>
+
+      <section class="article-section" aria-labelledby="journal-title">
+        <div class="measure">
+          <p class="section-label">Development journal</p>
+          <h2 id="journal-title">Notes from building the environment.</h2>
+          <p>Short publications will record product decisions, implementation constraints and lessons that are useful beyond this repository.</p>
+          <ul class="post-list">
+            <li><time datetime="{{RELEASE_DATE_ISO}}"><span class="placeholder">{{RELEASE_DATE}}</span></time><a href="journal.html#introducing">Introducing <span class="placeholder">{{PRODUCT_NAME}}</span></a><span class="post-status">Draft</span></li>
+            <li><span class="post-status">Planned</span><span>How comments find their text again</span><span class="post-status">Anchoring</span></li>
+            <li><span class="post-status">Planned</span><span>Accessibility as infrastructure for agent navigation</span><span class="post-status">Interface</span></li>
+            <li><span class="post-status">Planned</span><span>Why the standalone edition remains one HTML file</span><span class="post-status">Architecture</span></li>
+          </ul>
+          <p class="text-links"><a href="journal.html">Open the journal</a></p>
+        </div>
+      </section>
+
+      <section class="article-section" aria-labelledby="next-title">
+        <div class="measure">
+          <p class="section-label">What comes next</p>
+          <h2 id="next-title">The standalone file stays portable. The desktop app goes further.</h2>
+          <p>The desktop edition builds on the same reading and review workflow with native file handling, automatic local-image resolution, Mermaid diagrams, expanded syntax tooling, richer exports and other desktop integrations.</p>
+          <table class="boundary-table">
+            <thead><tr><th scope="col">Capability</th><th scope="col">Standalone</th><th scope="col">Desktop app</th></tr></thead>
+            <tbody>
+              <tr><td>Markdown and formulas</td><td>Available now, offline</td><td>Shared workflow</td></tr>
+              <tr><td>Comments and tasks</td><td>Available now</td><td>Shared workflow</td></tr>
+              <tr><td>Local images beside a file</td><td>Blocked by the portable security boundary</td><td>Native resolution planned</td></tr>
+              <tr><td>Mermaid and expanded syntax</td><td>Not included</td><td>Reserved for the app</td></tr>
+            </tbody>
+          </table>
+          <p class="byline"><span class="placeholder">{{DESKTOP_APP_STATUS}}</span> · Planned work will not be described as shipped until it is verified.</p>
+        </div>
+      </section>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wide footer-inner">
+      <p>© 2026 Zoya Slavina · Free for noncommercial use.</p>
+      <nav class="footer-links" aria-label="Project information">
+        <a href="../README.md">README</a><a href="../PRIVACY.md">Privacy</a><a href="../SUPPORT.md">Support</a><a href="../LICENSE">Licence</a>
+      </nav>
+    </div>
+  </footer>
+</body>
+</html>
+

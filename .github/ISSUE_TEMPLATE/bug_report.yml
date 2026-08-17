@@ -7,7 +7,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thank you for helping improve MD Reader. For security vulnerabilities, use the private reporting link described in SECURITY.md instead of this form.
+        Thank you for helping improve Markarium.md. For security vulnerabilities, use the private reporting link described in SECURITY.md instead of this form.
   - type: dropdown
     id: browser
     attributes:
@@ -23,7 +23,7 @@ body:
   - type: input
     id: version
     attributes:
-      label: MD Reader version
+      label: Markarium.md version
       placeholder: 1.0.0
     validations:
       required: true

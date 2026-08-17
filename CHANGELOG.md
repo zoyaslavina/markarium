@@ -2,6 +2,16 @@
 
 All notable user-visible changes to the standalone edition are recorded here.
 
+## Unreleased
+
+### Reading and editing
+
+- The outline **Collapse** and **Expand** controls now step the folded depth one heading level at a time (deepest first) instead of folding everything at once, with the current depth shown between the two controls.
+
+### Appearance
+
+- Headings now use **Inter** (bundled, offline) as the display face instead of Playfair Display, for a cleaner, more contemporary look; body text is unchanged.
+
 ## 1.0.0 — 2026-08-13
 
 First public standalone release.

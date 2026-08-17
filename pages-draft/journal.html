@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta name="description" content="Development notes for {{PRODUCT_NAME}}, a private Markdown reading, review and editing environment.">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'self'; script-src 'none'; font-src 'none'; connect-src 'none'; frame-src 'none'; object-src 'none'; worker-src 'none'; form-action 'none'; base-uri 'none'; frame-ancestors 'none'">
+  <link rel="stylesheet" href="site.css">
+  <link rel="canonical" href="{{JOURNAL_URL}}">
+  <title>Journal — {{PRODUCT_NAME}}</title>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <div class="draft-banner" role="note">Editorial GitHub Pages draft · placeholders remain · search indexing is disabled</div>
+  <header class="site-header">
+    <div class="wide header-inner">
+      <a class="identity" href="index.html" aria-label="{{PRODUCT_NAME}} project journal, home"><span class="placeholder">{{NAME}}</span><span>.md</span> / journal</a>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="index.html">About</a><a href="journal.html" aria-current="page">Journal</a><a href="../README.md">Documentation</a><a href="{{REPOSITORY_URL}}">GitHub</a><a href="../index.html">Open the reader</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <header class="page-heading measure">
+      <p class="kicker">Development journal</p>
+      <h1>Notes from making Markdown workable.</h1>
+      <p class="dek">Product decisions, implementation constraints and lessons from building a private review environment for people and software agents.</p>
+    </header>
+
+    <section class="article-section" aria-labelledby="index-title">
+      <div class="measure">
+        <p class="section-label">Index</p>
+        <h2 id="index-title">Publications</h2>
+        <ul class="post-list">
+          <li><time datetime="{{RELEASE_DATE_ISO}}"><span class="placeholder">{{RELEASE_DATE}}</span></time><a href="#introducing">Introducing <span class="placeholder">{{PRODUCT_NAME}}</span></a><span class="post-status">Draft</span></li>
+          <li><span class="post-status">Planned</span><span>How comments find their text again</span><span class="post-status">Anchoring</span></li>
+          <li><span class="post-status">Planned</span><span>Accessibility as infrastructure for agent navigation</span><span class="post-status">Interface</span></li>
+          <li><span class="post-status">Planned</span><span>Why the standalone edition remains one HTML file</span><span class="post-status">Architecture</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <article class="draft-article" id="introducing">
+      <header class="measure">
+        <p class="kicker">Release note · <span class="placeholder">{{RELEASE_DATE}}</span></p>
+        <h2>Introducing <span class="placeholder">{{PRODUCT_NAME}}</span></h2>
+        <p class="dek">A private Markdown environment for reading a document as a whole, attaching feedback in context, and returning one coherent review.</p>
+        <p class="byline">By Zoya Slavina · approximately <span class="placeholder">{{READING_TIME}}</span> min read</p>
+      </header>
+      <div class="measure prose">
+        <p>Markdown is easy to produce and easy to move between tools. Reviewing it is less tidy. A document may arrive from a collaborator or an AI system, while the comments about it accumulate in a chat, task list or second file. The text changes, the feedback loses its location, and the reviewer has to reconstruct the relationship between them.</p>
+
+        <h3>The original problem</h3>
+        <p>I wanted a small tool that treated a Markdown document as the centre of the review. I could read the whole thing, select the exact passage that needed attention, attach a comment or task, edit the source and hand the result back without opening an account or uploading the file.</p>
+
+        <h3>What the standalone edition became</h3>
+        <p>The result is one self-contained HTML file. It renders GitHub Flavored Markdown and offline formulas, builds an outline, searches long documents and keeps multiple files in tabs. The same interface supports raw Markdown editing, contextual comments, checkbox tasks, highlights, clean export and annotation hand-off.</p>
+        <p>The distinctive part is the anchor. A note stores not only the selected quote, but also nearby text, its section and its block context. If the passage moves or changes slightly, the application has several signals it can use to reconnect the feedback.</p>
+
+        <h3>Why one file matters</h3>
+        <p>The parser, sanitizer, formula renderer, fonts and interface are embedded in the HTML. There is no package installation, build command, account, analytics service or CDN. The file can be opened directly from disk, inspected, archived and shared under the project licence.</p>
+
+        <h3>Accessibility and agent navigation</h3>
+        <p>The project uses semantic landmarks, tab and panel relationships, named controls, visible focus, live status messages and complete keyboard paths. These decisions are primarily about human access. They also make the interface more legible to software agents because important actions and relationships exist in the document structure instead of only as visual coordinates.</p>
+
+        <h3>The boundary of the web edition</h3>
+        <p>The strict portable security model blocks remote and relative document images. Direct file saving also varies by browser. Those are explicit boundaries, not hidden omissions. The desktop app will carry the same review workflow into native file handling, local images, Mermaid diagrams, expanded syntax and richer exports.</p>
+
+        <p class="editor-note"><strong>Editorial placeholders before publication:</strong> add the final product name and release date; replace rebranded screenshots; decide whether this note should include a short personal closing; verify every app-roadmap sentence against the current implementation.</p>
+      </div>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wide footer-inner">
+      <p>© 2026 Zoya Slavina · Free for noncommercial use.</p>
+      <nav class="footer-links" aria-label="Project information"><a href="../README.md">README</a><a href="../PRIVACY.md">Privacy</a><a href="../SUPPORT.md">Support</a><a href="../LICENSE">Licence</a></nav>
+    </div>
+  </footer>
+</body>
+</html>
+

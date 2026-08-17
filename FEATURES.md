@@ -1,10 +1,10 @@
-# MD Reader capability catalogue
+# Markarium.md capability catalogue
 
 This is the durable product record for the package-free standalone reader and the forthcoming desktop app. Update it whenever a capability is added, removed or moved between editions; use it as the source for the in-product **Info**, README, release notes and store description.
 
 Status labels:
 
-- **Standalone** — present in `md-reader.html` in this repository.
+- **Standalone** — present in `index.html` in this repository.
 - **App** — present in, or reserved for, the desktop edition.
 - **Shared** — the workflow should remain consistent in both editions.
 
@@ -13,7 +13,7 @@ Status labels:
 | Capability | Edition | Notes |
 | --- | --- | --- |
 | GitHub Flavored Markdown | Shared | Headings, lists, task lists, tables, fenced code, links, images and blockquotes. |
-| Document outline | Shared | Stable heading IDs, current-section indication and independently collapsible branches. |
+| Document outline | Shared | Stable heading IDs, current-section indication, independently collapsible branches, and a Collapse/Expand depth stepper that folds or reveals one heading level at a time (deepest first). |
 | Search and long-document navigation | Shared | Match navigation, reading progress, word count, reading time and restored scroll position. |
 | Multiple open documents | Shared | Tabs, wiki-links and backlinks; tab controls follow keyboard tab semantics. |
 | Math formulas | Shared | KaTeX is embedded in the standalone file and works offline. |
