@@ -13,7 +13,7 @@ Read, annotate and edit Markdown in your browser. Hand your comments to a teamma
 
 ---
 
-**Markarium.md** is the single, self-contained [`index.html`](index.html). It renders Markdown, supports durable highlights, comments and tasks, edits the original source, and exports the result. The parser, sanitizer, math renderer, fonts and interface assets are embedded in the file, while a strict Content Security Policy prevents automatic network access.
+**Markarium.md** is the single, self-contained [`index.html`](index.html). It renders Markdown, supports durable highlights, comments and tasks, edits the original source, and exports the result. The parser, sanitizer, math renderer, fonts and interface assets are embedded in the file, while a strict Content Security Policy prevents automatic network access. Markarium.md desktop app with expanded functionality is coming soon. 
 
 <p align="center">
   <a href="https://zoyaslavina.github.io/markarium/"><strong>Open the web edition</strong></a>
