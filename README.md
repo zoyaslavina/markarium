@@ -24,7 +24,12 @@ Read, annotate and edit Markdown in your browser. Hand your comments to a teamma
 </p>
 
 <p align="center">
-  <img src="screenshot.png" alt="Markarium.md showing a Markdown document, outline and highlighted passages" width="900">
+  <img src="screenshot.png" alt="Markarium.md in the dark theme: a Markdown document with outline, highlights and review tools" width="860">
+</p>
+
+<p align="center">
+  <img src="screenshot-light.png" alt="Markarium.md in the light theme" width="860">
+  <br><em>Dark and light themes (also high-contrast and system).</em>
 </p>
 
 ## Use it
@@ -98,15 +103,15 @@ The complete bundled-component notices are in [`THIRD_PARTY_NOTICES.md`](THIRD_P
 
 ## Project documentation
 
-- [`FEATURES.md`](FEATURES.md) — capability catalogue and standalone/app boundary
-- [`ACCESSIBILITY.md`](ACCESSIBILITY.md) — implemented support, verification and known boundaries
-- [`CHANGELOG.md`](CHANGELOG.md) — public release history
-- [`SECURITY.md`](SECURITY.md) — private vulnerability reporting and security boundary
-- [`CONTRIBUTING.md`](CONTRIBUTING.md) — contribution and verification expectations
-- [`AGENTS.md`](AGENTS.md) — constraints for coding agents working in this repository
+- [`FEATURES.md`](FEATURES.md): capability catalogue and standalone/app boundary
+- [`ACCESSIBILITY.md`](ACCESSIBILITY.md): implemented support, verification and known boundaries
+- [`CHANGELOG.md`](CHANGELOG.md): public release history
+- [`SECURITY.md`](SECURITY.md): private vulnerability reporting and security boundary
+- [`CONTRIBUTING.md`](CONTRIBUTING.md): contribution and verification expectations
+- [`AGENTS.md`](AGENTS.md): constraints for coding agents working in this repository
 
 ## License
 
-**Free for noncommercial use** — read it, use it, modify it and share it. Commercial use, including selling it or a derivative, is not permitted. See the [PolyForm Noncommercial License 1.0.0](LICENSE).
+**Free for noncommercial use.** Read it, use it, modify it and share it. Commercial use, including selling it or a derivative, is not permitted. See the [PolyForm Noncommercial License 1.0.0](LICENSE).
 
 &copy; 2026 Zoya Slavina
