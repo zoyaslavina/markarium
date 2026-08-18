@@ -95,8 +95,8 @@ Everything below is bundled inside `index.html`; none is fetched from a CDN at r
 | Component | Bundled version | Purpose | License |
 | --- | --- | --- | --- |
 | [marked](https://github.com/markedjs/marked) | 18.0.7 | Markdown parser | MIT |
-| [DOMPurify](https://github.com/cure53/DOMPurify) | 3.4.9 | HTML sanitizer | Apache-2.0 / MPL-2.0 |
-| [KaTeX](https://katex.org) | 0.16.11 | Math rendering | MIT |
+| [DOMPurify](https://github.com/cure53/DOMPurify) | 3.4.13 | HTML sanitizer | Apache-2.0 / MPL-2.0 |
+| [KaTeX](https://katex.org) | 0.16.22 | Math rendering | MIT |
 | [Inter](https://github.com/rsms/inter) | bundled subset | Display font | SIL OFL 1.1 |
 
 The complete bundled-component notices are in [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).

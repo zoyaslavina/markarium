@@ -30,7 +30,7 @@ Status labels:
 | In-document comment markers | Shared | Every attached note has a visible, keyboard-operable marker and a corresponding panel item. |
 | Go to, edit, resolve and copy | Shared | Each review item exposes explicit named actions. |
 | Embedded annotation block | Shared | Review data can travel with a Markdown file while remaining hidden from the rendered document. |
-| Safe JSON import/export | Shared | Annotation records are validated, normalized and applied only to the currently open document. |
+| Safe JSON import/export | Shared | Annotation records are validated and normalized; import verifies the file belongs to the open document (by stable document ID), warns on a mismatch, and offers merge, replace or cancel with a one-step undo. |
 | Raw Markdown editing | Shared | Reader and source editor live in the same workflow with save/download fallbacks. |
 | AI citation cleanup | Shared | Common ChatGPT, Gemini and Perplexity export markers can be inspected, hidden or removed from a clean export. |
 | Table-safe annotations | Shared | Selection wrapping ignores table structure and formatting whitespace, avoiding stray dots/border fragments. |
