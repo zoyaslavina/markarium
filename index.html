@@ -1715,10 +1715,9 @@
                 if (choice === 'save') {
                     // The save must target THIS tab; make it active if it isn't.
                     if (!closingActive) { saveCurrentTabState(); loadTabState(tabId); renderTabUI(); }
-                    // Save in place when we can — a write handle, or (in the desktop
-                    // app) the native bridge, both of which saveMarkdownToFile routes
-                    // to. Only with no real save target fall back to a download.
-                    const ok = (currentFileHandle || window.mdrNative) ? await saveMarkdownToFile() : (downloadMarkdown(), true);
+                    // With a write handle we save in place; otherwise fall back to a
+                    // download so the edited bytes still leave the app.
+                    const ok = currentFileHandle ? await saveMarkdownToFile() : (downloadMarkdown(), true);
                     if (!ok) {
                         // Save failed or was declined → do NOT close; return the user
                         // to where they were if we had to switch tabs.
