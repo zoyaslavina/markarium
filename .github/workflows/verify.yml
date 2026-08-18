@@ -32,7 +32,7 @@ jobs:
           test -f SECURITY.md
           test -f THIRD_PARTY_NOTICES.md
           grep -Fq 'connect-src '\''none'\''' index.html
-          grep -Fq '<meta name="version" content="1.0.0">' index.html
+          grep -Fq '<meta name="version" content="1.0.1">' index.html
           if grep -Eq 'mdrNative|<script[^>]+src="https?://|<link[^>]+rel="stylesheet"[^>]+href="https?://' index.html; then
             echo 'Native API or remote runtime dependency found in standalone HTML.' >&2
             exit 1

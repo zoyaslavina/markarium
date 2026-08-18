@@ -4,6 +4,8 @@ All notable user-visible changes to the standalone edition are recorded here.
 
 ## Unreleased
 
+## 1.0.1 — 2026-08-18
+
 ### Reading and editing
 
 - The outline **Collapse** and **Expand** controls now step the folded depth one heading level at a time (deepest first) instead of folding everything at once, with the current depth shown between the two controls.
