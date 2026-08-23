@@ -31,7 +31,8 @@ Status labels:
 | Go to, edit, resolve and copy | Shared | Each review item exposes explicit named actions. |
 | Embedded annotation block | Shared | Review data can travel with a Markdown file while remaining hidden from the rendered document. |
 | Safe JSON import/export | Shared | Annotation records are validated and normalized; import verifies the file belongs to the open document (by stable document ID), warns on a mismatch, and offers merge, replace or cancel with a one-step undo. |
-| Raw Markdown editing | Shared | Reader and source editor live in the same workflow with save/download fallbacks. |
+| Raw Markdown editing | Shared | Reader and source editor live in the same workflow; **Done** saves to the file automatically, with save/download fallbacks. |
+| In-place write access | Shared | Files opened with the picker or dropped onto the window obtain a write handle and ask for read-write permission up front; handles are kept in IndexedDB so restored tabs still save in place after a reload. Browsers without the File System Access API fall back to download. |
 | AI citation cleanup | Shared | Common ChatGPT, Gemini and Perplexity export markers can be inspected, hidden or removed from a clean export. |
 | Table-safe annotations | Shared | Selection wrapping ignores table structure and formatting whitespace, avoiding stray dots/border fragments. |
 | Stable section navigation | Shared | Selecting a section scrolls only the document pane rather than shifting the whole application frame. |

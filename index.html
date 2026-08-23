@@ -496,6 +496,9 @@
             padding: 48px 56px 96px;
             overflow-y: auto;
             tab-size: 4;
+            /* Edits inside the textarea never change its box, so tell the engine
+               it can skip re-laying-out / repainting the rest of the page. */
+            contain: layout style paint;
         }
         .editor::placeholder { color: var(--text-faint); }
         body.edit-mode #content { display: none; }
@@ -1242,7 +1245,7 @@
                 </div>
             </div>
 
-            <textarea class="editor" id="editor" spellcheck="true" placeholder="# Start writing…" aria-label="Markdown source editor"></textarea>
+            <textarea class="editor" id="editor" spellcheck="true" autocomplete="off" autocorrect="off" autocapitalize="off" placeholder="# Start writing…" aria-label="Markdown source editor"></textarea>
 
             <aside class="comments-panel" id="commentsPanel" aria-label="Notes: comments and tasks">
                 <div class="panel-resize" id="panelResize" title="Drag or use arrow keys to resize" role="separator" aria-label="Resize notes panel" aria-orientation="vertical" aria-valuemin="260" aria-valuemax="620" aria-valuenow="320" tabindex="0"></div>
@@ -1409,7 +1412,7 @@
 
             <h4>Edit, save &amp; share</h4>
             <ul class="help-feats">
-                <li><b>Edit</b> (⌘E) the raw markdown and <b>Save</b> (⌘S) it back to the file. Highlights &amp; notes can travel <b>embedded in the .md</b>, or exported as a separate <code>.json</code>.</li>
+                <li><b>Edit</b> (⌘E) the raw markdown; <b>Done</b> writes it straight back to the file (⌘S also saves at any time). Files opened with <b>Open file</b> or dropped onto the window ask for write access once and keep it across reloads. Highlights &amp; notes can travel <b>embedded in the .md</b>, or exported as a separate <code>.json</code>.</li>
                 <li><b>Wiki-links</b> <code>[[Heading]]</code> jump to headings or other open tabs; <b>backlinks</b> list what links here; plus <b>footnotes</b> and <b>PDF</b> export.</li>
                 <li><b>Math</b> write <code>$…$</code> for an inline formula or <code>$$…$$</code> for a display one (rendered with KaTeX, fully offline).</li>
             </ul>
@@ -1468,6 +1471,92 @@
         let currentFileContent = null;
         let currentFileHandle = null;
         let currentDirHandle = null;
+
+        // ── Write access & persistent file handles ─────────────────────────────
+        // FileSystemFileHandle objects cannot go in localStorage, but they ARE
+        // structured-cloneable, so they can live in IndexedDB. Keeping them lets a
+        // restored tab keep its write access after a reload instead of degrading
+        // to "opened without write access". Everything here is best-effort: the
+        // handle store is a convenience and must never block reading a document.
+        const HANDLE_DB = 'mdReaderHandles';
+        const HANDLE_STORE = 'handles';
+        function openHandleDb() {
+            return new Promise((resolve, reject) => {
+                if (!('indexedDB' in window)) { reject(new Error('IndexedDB unavailable')); return; }
+                let req;
+                try { req = indexedDB.open(HANDLE_DB, 1); } catch (e) { reject(e); return; }
+                req.onupgradeneeded = () => { req.result.createObjectStore(HANDLE_STORE); };
+                req.onsuccess = () => resolve(req.result);
+                req.onerror = () => reject(req.error);
+                req.onblocked = () => reject(new Error('IndexedDB blocked'));
+            });
+        }
+        async function handleStoreTx(mode, fn) {
+            const db = await openHandleDb();
+            try {
+                return await new Promise((resolve, reject) => {
+                    const tx = db.transaction(HANDLE_STORE, mode);
+                    const out = fn(tx.objectStore(HANDLE_STORE));
+                    tx.oncomplete = () => resolve(typeof out === 'function' ? out() : out);
+                    tx.onerror = () => reject(tx.error);
+                    tx.onabort = () => reject(tx.error);
+                });
+            } finally { db.close(); }
+        }
+        function storeTabHandle(tabId, handle) {
+            if (!tabId) return Promise.resolve();
+            return handleStoreTx('readwrite', store => {
+                if (handle) store.put(handle, tabId); else store.delete(tabId);
+            }).catch(() => {});
+        }
+        async function loadStoredHandles() {
+            try {
+                return await handleStoreTx('readonly', store => {
+                    const keysReq = store.getAllKeys();
+                    const valsReq = store.getAll();
+                    return () => {
+                        const map = new Map();
+                        (keysReq.result || []).forEach((k, i) => map.set(k, valsReq.result[i]));
+                        return map;
+                    };
+                });
+            } catch (e) { return new Map(); }
+        }
+
+        // Ask for read-write access on a handle. We call this eagerly from user
+        // gestures (Open, drop, Edit, Done) so the browser's one-time permission
+        // prompt appears right away and later saves never stall on it. With
+        // prompt:false we only query (used on page load, where no gesture exists).
+        async function ensureWriteAccess(handle, { prompt = true } = {}) {
+            if (!handle || typeof handle.queryPermission !== 'function') return false;
+            const opts = { mode: 'readwrite' };
+            try {
+                if ((await handle.queryPermission(opts)) === 'granted') return true;
+                if (!prompt || typeof handle.requestPermission !== 'function') return false;
+                return (await handle.requestPermission(opts)) === 'granted';
+            } catch (e) {
+                // Typically "user activation required" - we'll retry on the next gesture.
+                return false;
+            }
+        }
+
+        // Re-attach handles saved by a previous session to the restored tabs, and
+        // drop handles whose tab no longer exists. Runs after restoreTabs().
+        async function attachStoredHandles() {
+            const stored = await loadStoredHandles();
+            if (!stored.size) return;
+            for (const [tabId, handle] of stored) {
+                const tab = openTabs.find(t => t.id === tabId);
+                if (!tab || !handle || handle.kind !== 'file' || handle.name !== tab.fileName) {
+                    storeTabHandle(tabId, null);
+                    continue;
+                }
+                if (tab.fileHandle) continue;
+                tab.fileHandle = handle;
+                if (tab.id === activeTabId) currentFileHandle = handle;
+                ensureWriteAccess(handle, { prompt: false });
+            }
+        }
         let annotations = {};
         let selectedHighlight = null;
         let selectedColor = 'default';
@@ -1486,6 +1575,7 @@
 
         // Tab system state
         let openTabs = [];           // Array of tab objects
+        let foldLevel = Infinity;    // outline fold depth (used by setupHeadingFolds/resetFoldLevel)
         let activeTabId = null;      // Currently active tab ID
         const MAX_TABS = 10;
         // Tab object structure:
@@ -1738,6 +1828,7 @@
 
             const removeIndex = openTabs.findIndex(t => t.id === tabId);
             openTabs.splice(removeIndex, 1);
+            storeTabHandle(tabId, null);
 
             if (openTabs.length === 0) {
                 activeTabId = null;
@@ -1842,7 +1933,7 @@
                         fileId,
                         fileName,
                         fileContent,
-                        fileHandle: null, // File handles can't be persisted
+                        fileHandle: null, // re-attached from IndexedDB by attachStoredHandles()
                         scrollPosition: Math.max(0, Number(tab.scrollPosition) || 0),
                         undoStack: Array.isArray(tab.undoStack) ? tab.undoStack.filter(id => /^[a-zA-Z0-9_-]{1,80}$/.test(String(id))) : [],
                         // New split flags; fall back to the legacy combined flag as
@@ -1862,7 +1953,7 @@
 
                 return true;
             } catch (e) {
-                console.log('Could not restore tabs from localStorage');
+                console.warn('Could not restore tabs from localStorage', e);
                 return false;
             }
         }
@@ -2175,6 +2266,11 @@
                 currentFileHandle = handle;
                 currentDirHandle = null;
 
+                // Ask for write access now, while the picker gesture is still
+                // live, so the document can be saved in place without a later
+                // "re-open with Open file" round trip.
+                ensureWriteAccess(handle);
+
                 const file = await handle.getFile();
                 await loadFileFromHandle(file, handle.name, handle);
             } catch (e) {
@@ -2202,13 +2298,23 @@
             // Check if file already open
             const existingTab = findExistingTab(fileId);
             if (existingTab) {
-                switchToTab(existingTab.id);
+                // Re-opening a document that is already in a tab (e.g. one restored
+                // after a reload) is how it regains write access: adopt the handle.
+                const gainedHandle = !!fileHandle && existingTab.fileHandle !== fileHandle;
+                if (gainedHandle) {
+                    existingTab.fileHandle = fileHandle;
+                    storeTabHandle(existingTab.id, fileHandle);
+                }
+                switchToTab(existingTab.id);   // no-op if it is already active
+                if (fileHandle) currentFileHandle = fileHandle;
+                if (gainedHandle) updateSaveStatus('saved', 'Write access enabled');
                 return;
             }
 
             // Create new tab
             const newTab = createTab(fileId, fileName, fileContent, fileHandle || currentFileHandle);
             if (!newTab) return; // Max tabs reached
+            if (newTab.fileHandle) storeTabHandle(newTab.id, newTab.fileHandle);
 
             // Set current state
             currentFileContent = fileContent;
@@ -2270,8 +2376,25 @@
 
             if (e.dataTransfer.files.length > 0) {
                 const file = e.dataTransfer.files[0];
-                currentFileHandle = null;
-                await loadFileFromHandle(file, file.name, null);
+                // Chromium exposes a real file handle for dropped files, which is
+                // what lets a dropped document be saved in place instead of being
+                // read-only. It must be requested synchronously inside the event.
+                let handlePromise = null;
+                const item = e.dataTransfer.items && e.dataTransfer.items[0];
+                if (item && typeof item.getAsFileSystemHandle === 'function') {
+                    try { handlePromise = item.getAsFileSystemHandle(); } catch (err) { handlePromise = null; }
+                }
+                let handle = null;
+                if (handlePromise) {
+                    try {
+                        const h = await handlePromise;
+                        if (h && h.kind === 'file') handle = h;
+                    } catch (err) { handle = null; }
+                }
+                currentFileHandle = handle;
+                currentDirHandle = null;
+                if (handle) ensureWriteAccess(handle);
+                await loadFileFromHandle(file, file.name, handle);
             }
         });
 
@@ -4568,6 +4691,7 @@ img { max-width: 100%; }
 
         // Restore tabs on page load
         const tabsRestored = restoreTabs();
+        if (tabsRestored) attachStoredHandles();
 
         // Backwards compatibility: try old single-file format if no tabs
         if (!tabsRestored) {
@@ -4768,6 +4892,7 @@ img { max-width: 100%; }
             });
 
             document.addEventListener('selectionchange', () => {
+                if (isEditMode) return;   // caret moves in the editor are not annotation selections
                 const sel = window.getSelection();
                 if (!sel || sel.isCollapsed) hide();
             });
@@ -4797,6 +4922,10 @@ img { max-width: 100%; }
         // ══════════════════════════════════════════════════════════════════════
         //  Edit mode - edit the raw markdown and write it back to the .md file
         // ══════════════════════════════════════════════════════════════════════
+        // Above this size the source editor turns browser spell-checking off
+        // (see setEditMode) - it is the dominant cost of typing in long files.
+        const EDITOR_SPELLCHECK_MAX_CHARS = 20000;
+
         function markMdDirty(dirty) {
             mdDirty = dirty;
             const tab = openTabs.find(t => t.id === activeTabId);
@@ -4860,7 +4989,15 @@ img { max-width: 100%; }
             if (on) {
                 const anchor = topReadAnchor();
                 const frac = scrollFrac(content);
-                editor.value = currentFileContent || '';
+                const src = currentFileContent || '';
+                // Browser spell-checking re-scans a large textarea on every edit
+                // and is the main cause of typing stalls in long documents: keep
+                // it for short notes only.
+                editor.spellcheck = src.length <= EDITOR_SPELLCHECK_MAX_CHARS;
+                if (editor.value !== src) editor.value = src;
+                // Entering edit mode is a user gesture: settle write permission
+                // now so leaving with Done can write straight to disk.
+                if (currentFileHandle) ensureWriteAccess(currentFileHandle);
                 isEditMode = true;
                 document.body.classList.add('edit-mode');
                 if (editToggleBtn) { editToggleBtn.textContent = '✓ Done'; editToggleBtn.classList.add('active'); editToggleBtn.setAttribute('aria-pressed', 'true'); }
@@ -4885,6 +5022,10 @@ img { max-width: 100%; }
                 document.body.classList.remove('edit-mode');
                 if (editToggleBtn) { editToggleBtn.textContent = '✎ Edit'; editToggleBtn.classList.remove('active'); editToggleBtn.setAttribute('aria-pressed', 'false'); }
                 commitEditedContent(newContent);
+                // Done writes the source back to disk automatically. mdDirty is
+                // true whenever the disk copy is behind (this session's edits or
+                // an earlier save that failed), so a no-op exit writes nothing.
+                if (mdDirty) saveMarkdownToFile();
                 requestAnimationFrame(() => {
                     const el = anchor ? findBlockWith(anchor) : null;
                     if (el) content.scrollTop = Math.max(0, el.offsetTop - 12);
@@ -4916,11 +5057,8 @@ img { max-width: 100%; }
             persistTabs();
         }
 
-        async function verifyWritePermission(handle) {
-            const opts = { mode: 'readwrite' };
-            if ((await handle.queryPermission(opts)) === 'granted') return true;
-            if ((await handle.requestPermission(opts)) === 'granted') return true;
-            return false;
+        function verifyWritePermission(handle) {
+            return ensureWriteAccess(handle);
         }
 
         async function saveMarkdownToFile() {
@@ -4986,9 +5124,22 @@ img { max-width: 100%; }
                 editor.addEventListener('keydown', (e) => {
                     if (e.key === 'Tab') {
                         e.preventDefault();
-                        const s = editor.selectionStart, en = editor.selectionEnd;
-                        editor.value = editor.value.slice(0, s) + '    ' + editor.value.slice(en);
-                        editor.selectionStart = editor.selectionEnd = s + 4;
+                        // Insert in place rather than rebuilding editor.value: on a
+                        // long document the rebuild forces a full re-layout and
+                        // wipes the native undo history. execCommand keeps undo
+                        // and fires 'input'; setRangeText is the fallback.
+                        let inserted = false;
+                        try { inserted = document.execCommand('insertText', false, '    '); } catch (err) { inserted = false; }
+                        if (!inserted) {
+                            const s = editor.selectionStart, en = editor.selectionEnd;
+                            if (typeof editor.setRangeText === 'function') {
+                                editor.setRangeText('    ', s, en, 'end');
+                            } else {
+                                editor.value = editor.value.slice(0, s) + '    ' + editor.value.slice(en);
+                                editor.selectionStart = editor.selectionEnd = s + 4;
+                            }
+                            editor.dispatchEvent(new Event('input', { bubbles: true }));
+                        }
                     }
                 });
             }
@@ -5456,7 +5607,8 @@ img { max-width: 100%; }
         // Outline granularity stepper: each Collapse click folds one more heading
         // level (deepest first); Expand reveals one. foldLevel = the shallowest
         // heading level that is collapsed (> maxLevel means fully expanded).
-        let foldLevel = Infinity;
+        // foldLevel is declared with the other app state (near openTabs): it must
+        // exist before restoreTabs() runs at startup, which renders and calls resetFoldLevel().
         function outlineLevels() {
             const set = new Set();
             content.querySelectorAll('.heading-fold').forEach(btn => {

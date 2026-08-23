@@ -59,7 +59,7 @@ You can also serve the same file with GitHub Pages. No package installation or c
 - Resilient anchors that use the quoted text plus its surrounding context, section and block, so notes can reattach after small edits or text movement
 - A **Go to** action and visible in-document markers for every attached note
 - Safe annotation import/export and optional annotations embedded inside the Markdown file
-- Raw Markdown editing, undo of review actions, clean Markdown export, annotation JSON export and PDF printing
+- Raw Markdown editing that saves back to the file when you press **Done** (write access is requested once when a file is opened or dropped, and remembered across reloads), undo of review actions, clean Markdown export, annotation JSON export and PDF printing
 - AI-export citation cleanup for common ChatGPT, Gemini and Perplexity markers
 
 ### Accessible and automation-friendly
