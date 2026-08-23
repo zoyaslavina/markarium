@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="color-scheme" content="dark light">
     <meta name="referrer" content="no-referrer">
     <meta name="application-name" content="Markarium.md">
@@ -170,7 +170,12 @@
             clip: rect(0, 0, 0, 0) !important; white-space: nowrap !important; border: 0 !important;
         }
 
-        html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
+        html, body {
+            height: 100%;
+            height: var(--app-height, 100dvh);
+            overflow: hidden;
+            overscroll-behavior: none;
+        }
 
         body {
             font-family: var(--sans);
@@ -183,6 +188,8 @@
         }
 
         button { font-family: inherit; }
+
+        .mobile-nav-btn, .mobile-sidebar-close, .mobile-nav-backdrop { display: none; }
 
         /* ── Sidebar / TOC ───────────────────────────────────────────────────── */
         .sidebar {
@@ -1135,12 +1142,133 @@
         }
 
         /* ── Responsive ──────────────────────────────────────────────────────── */
-        @media (max-width: 860px) {
-            .sidebar { display: none; }
-            .content, .editor { padding: 32px 22px 80px; }
-            .comments-panel { position: fixed; right: 0; top: 0; bottom: 0; width: 86%; max-width: 340px; z-index: 1800; box-shadow: var(--shadow-lg); }
-            .find-bar, body.panel-open .find-bar { right: 16px; top: 92px; }
-            .find-bar input { width: 130px; }
+        @media (max-width: 1024px) {
+            .mobile-nav-btn { display: flex; flex: 0 0 auto; }
+            .mobile-sidebar-close {
+                display: flex; position: absolute; top: max(12px, env(safe-area-inset-top)); right: 12px;
+                width: 44px; height: 44px; align-items: center; justify-content: center;
+                border: 0; border-radius: 999px; background: transparent; color: var(--text-secondary);
+                font-size: 1.5rem; cursor: pointer;
+            }
+            .mobile-nav-backdrop {
+                display: block; position: fixed; inset: 0; z-index: 1890;
+                background: rgba(0,0,0,0.46); opacity: 0; pointer-events: none;
+                transition: opacity 0.18s ease;
+            }
+            .mobile-nav-backdrop.visible { opacity: 1; pointer-events: auto; }
+            .sidebar {
+                display: flex; position: fixed; z-index: 1900; inset: 0 auto 0 0;
+                width: min(88vw, 360px); max-width: 100%;
+                padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom);
+                box-shadow: var(--shadow-lg); transform: translateX(-105%);
+                visibility: hidden; transition: transform 0.2s ease, visibility 0s linear 0.2s;
+            }
+            .sidebar.mobile-open {
+                transform: translateX(0); visibility: visible;
+                transition: transform 0.2s ease, visibility 0s;
+            }
+            .sidebar-header { position: relative; padding-right: 62px; }
+            .topbar {
+                flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden;
+                padding: 8px max(10px, env(safe-area-inset-right)) 8px max(10px, env(safe-area-inset-left));
+                min-height: 60px; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+            }
+            .topbar::-webkit-scrollbar { display: none; }
+            .topbar-spacer { min-width: 8px; }
+            .content, .editor { padding: 32px 44px calc(80px + env(safe-area-inset-bottom)); }
+            .content, .editor, .toc, .comments-list, .help-modal, .table-block, .content pre {
+                -webkit-overflow-scrolling: touch;
+            }
+            .comments-panel {
+                position: fixed; right: 0; top: 0; bottom: 0;
+                width: min(86vw, 420px) !important; max-width: none; z-index: 1800;
+                padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom);
+                box-shadow: var(--shadow-lg);
+            }
+            .panel-resize { display: none; }
+            .find-bar, body.panel-open .find-bar {
+                right: max(10px, env(safe-area-inset-right));
+                top: calc(68px + env(safe-area-inset-top));
+                max-width: calc(100vw - 20px - env(safe-area-inset-left) - env(safe-area-inset-right));
+            }
+            .find-bar input { width: min(34vw, 190px); font-size: 16px; }
+            .readprefs {
+                top: calc(60px + env(safe-area-inset-top));
+                right: max(10px, env(safe-area-inset-right));
+                max-width: calc(100vw - 20px - env(safe-area-inset-left) - env(safe-area-inset-right));
+            }
+            .export-menu {
+                position: fixed; top: calc(60px + env(safe-area-inset-top));
+                right: max(10px, env(safe-area-inset-right));
+                max-height: min(70dvh, 520px); overflow-y: auto;
+            }
+            .help-overlay, .confirm-overlay {
+                padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right))
+                    max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+            }
+            .help-modal { max-height: calc(var(--app-height, 100dvh) - 24px); }
+            .status-bar { padding-bottom: max(5px, env(safe-area-inset-bottom)); overflow-x: auto; }
+            .status-bar > * { flex-shrink: 0; }
+            .status-grow { min-width: 4px; }
+            .toast { bottom: calc(16px + env(safe-area-inset-bottom)); max-width: calc(100vw - 24px); }
+
+            /* Safari zooms the page when a focused field is below 16px. */
+            input, select, textarea, .editor, .edit-comment-textarea, .add-comment-area textarea {
+                font-size: 16px;
+            }
+
+            /* Keep section folds visible and reachable without hover. */
+            .heading-fold { left: -42px; top: -5px; width: 44px; height: 44px; opacity: 0.8; }
+            .content h1:hover .heading-fold, .content h2:hover .heading-fold,
+            .content h3:hover .heading-fold, .content h4:hover .heading-fold { opacity: 1; }
+
+            .welcome-card { padding: 38px 34px; max-width: min(540px, 100%); }
+            .welcome-drop-hint { display: none; }
+        }
+
+        @media (max-width: 560px) {
+            .content, .editor {
+                --mobile-gutter: clamp(36px, 11vw, 44px);
+                padding: 24px var(--mobile-gutter) calc(72px + env(safe-area-inset-bottom));
+            }
+            .content h1 { font-size: clamp(1.8rem, 9vw, 2.2rem); }
+            .content h2 { font-size: clamp(1.45rem, 7vw, 1.7rem); }
+            .content p, .content li { text-align: left; -webkit-hyphens: none; hyphens: none; }
+            .heading-fold { left: calc(0px - var(--mobile-gutter)); width: 44px; }
+            .comments-panel { width: 100% !important; }
+            .comments-header { padding: 10px 12px; }
+            .comments-list { padding: 10px 12px; }
+            .add-comment-area { padding: 10px 12px; }
+            .panel-seg { min-height: 44px; padding: 8px 12px; }
+            .welcome-card { padding: 30px 20px; border-radius: 14px; }
+            .welcome-mark { width: 108px; height: 66px; margin-bottom: 16px; }
+            .welcome-card h1 { font-size: 1.65rem; }
+            .status-read, .status-chip { display: none !important; }
+            .find-bar { left: max(8px, env(safe-area-inset-left)); right: max(8px, env(safe-area-inset-right)); }
+            .find-bar input { min-width: 0; width: 100%; }
+        }
+
+        @media (hover: none), (pointer: coarse) {
+            .btn, .icon-btn, .open-btn, .welcome-open-btn, .toc-item, .toc-tool,
+            .menu-item, .status-count, .status-chip, .icon-btn-sm, .find-btn,
+            .nav-btn, .close-panel-btn, .comment-actions button, .resolved-actions button,
+            .edit-actions button, .add-comment-area button, .panel-seg, .readprefs label,
+            .help-close, .help-copy,
+            .confirm-actions button, .tab-new-btn {
+                min-height: 44px;
+            }
+            .icon-btn, .nav-btn, .find-btn, .icon-btn-sm, .tab-new-btn,
+            .close-panel-btn, .help-close { min-width: 44px; width: 44px; height: 44px; }
+            .tab { min-height: 48px; padding-top: 5px; padding-bottom: 5px; }
+            .tab-close { width: 44px; height: 44px; opacity: 1; }
+            .floating-toolbar {
+                max-width: calc(100vw - 16px); flex-wrap: wrap; justify-content: center;
+                gap: 5px 8px; border-radius: 18px; padding: 8px;
+            }
+            .floating-toolbar .highlight-btn, .floating-toolbar .color-btn { width: 44px; height: 44px; }
+            .ft-action { min-height: 44px; padding: 8px 12px; }
+            .ft-div { height: 28px; }
+            .comment-item:hover { transform: none; }
         }
     </style>
     <style id="katex-css">
@@ -1150,13 +1278,15 @@
 </head>
 <body>
     <a href="#content" class="skip-link">Skip to content</a>
-    <aside class="sidebar" aria-label="Document navigation">
+    <div class="mobile-nav-backdrop" id="mobileNavBackdrop" aria-hidden="true"></div>
+    <aside class="sidebar" id="mobileSidebar" aria-label="Document navigation">
         <div class="sidebar-header">
+            <button class="mobile-sidebar-close" id="mobileSidebarClose" type="button" aria-label="Close navigation">&times;</button>
             <div class="logo-word sidebar-word" role="img" aria-label="Markarium.md"></div>
             <div class="app-subtitle">reader · editor · review</div>
             <button class="open-btn" id="openFileBtn">＋&nbsp; Open file</button>
             <button class="open-btn" id="newFileBtn" style="margin-top:8px;">✎&nbsp; New document</button>
-            <input type="file" id="fileInput" accept=".md,.markdown,.txt" hidden>
+            <input type="file" id="fileInput" accept=".md,.markdown,.txt" multiple hidden>
         </div>
         <nav class="toc" aria-label="Table of contents">
             <div class="toc-title">Contents</div>
@@ -1176,6 +1306,11 @@
     <main class="main" aria-label="Reader workspace">
         <div class="topbar" role="toolbar" aria-label="Document actions">
             <!-- Left: read & annotate (most used, expected first) -->
+            <button class="icon-btn mobile-nav-btn" id="mobileNavBtn" type="button"
+                title="Open files and contents" aria-label="Open files and document contents"
+                aria-controls="mobileSidebar" aria-expanded="false">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+            </button>
             <button class="icon-btn" id="findBtn" title="Find in document (⌘F / Ctrl+F)" aria-label="Find in document">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>
             </button>
@@ -1236,7 +1371,7 @@
                         <p class="welcome-subtitle">A private Markdown reader, editor &amp; review workspace</p>
                         <h1>Read &amp; annotate markdown</h1>
                         <button class="welcome-open-btn" type="button">＋&nbsp; Open a Markdown file</button>
-                        <p>… or drag and drop a <code>.md</code> file anywhere on this window.</p>
+                        <p class="welcome-drop-hint">… or drag and drop a <code>.md</code> file anywhere on this window.</p>
                         <p class="welcome-hint">Comment and turn notes into tasks, then hand them to a teammate or an AI agent to act on, or take in theirs. Nothing leaves your device.</p>
                     </div>
                 </div>
@@ -1388,6 +1523,7 @@
             <h4>Files &amp; tabs</h4>
             <ul class="help-feats">
                 <li><b>Open file</b> in the sidebar, or <b>drag &amp; drop</b> a <code>.md</code> / <code>.markdown</code> / <code>.txt</code> anywhere on the window. Open several at once - they become <b>tabs</b>, and reopen where you left off.</li>
+                <li>On <b>iPad or phone</b>, use the menu button at the start of the top bar for Open file, New document and Contents. You can choose several files from Files at once.</li>
             </ul>
 
             <h4>Reading &amp; navigation</h4>
@@ -1410,6 +1546,8 @@
             <h4>Edit, save &amp; share</h4>
             <ul class="help-feats">
                 <li><b>Edit</b> (⌘E) the raw markdown and <b>Save</b> (⌘S) it back to the file. Highlights &amp; notes can travel <b>embedded in the .md</b>, or exported as a separate <code>.json</code>.</li>
+                <li>Safari cannot overwrite an opened file directly. On iPad and iPhone, <b>Save copy</b> opens the share sheet so you can replace or keep a copy in Files; cancelling leaves the document marked unsaved.</li>
+                <li>For an offline journey, open Markarium.md before losing connectivity and keep the tab available. Once loaded, the workspace makes no network requests; save important work to Files before closing the browser.</li>
                 <li><b>Wiki-links</b> <code>[[Heading]]</code> jump to headings or other open tabs; <b>backlinks</b> list what links here; plus <b>footnotes</b> and <b>PDF</b> export.</li>
                 <li><b>Math</b> write <code>$…$</code> for an inline formula or <code>$$…$$</code> for a display one (rendered with KaTeX, fully offline).</li>
             </ul>
@@ -1558,6 +1696,29 @@
         const tabList = document.getElementById('tabList');
         const newTabBtn = document.getElementById('newTabBtn');
 
+        function isAppleTouchDevice() {
+            return /iPad|iPhone|iPod/i.test(navigator.userAgent)
+                || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        }
+
+        function updateSaveButtonLabel() {
+            if (!saveNowBtn) return;
+            if (!currentFile) {
+                saveNowBtn.textContent = 'Save';
+                saveNowBtn.title = 'Save (⌘S / Ctrl+S)';
+                return;
+            }
+            if (!currentFileHandle) {
+                saveNowBtn.textContent = 'Save copy';
+                saveNowBtn.title = isAppleTouchDevice()
+                    ? 'Share a portable Markdown copy to Files'
+                    : 'Download a portable Markdown copy';
+                return;
+            }
+            saveNowBtn.textContent = mdDirty ? 'Save file' : 'Save';
+            saveNowBtn.title = 'Save to the opened file (⌘S / Ctrl+S)';
+        }
+
         // Tab management functions
         function generateTabId() {
             return 'tab_' + Math.random().toString(36).substr(2, 9);
@@ -1609,8 +1770,7 @@
             });
 
             saveNowBtn.disabled = false;
-            const saveBtn = document.getElementById('saveNowBtn');
-            if (saveBtn) saveBtn.textContent = mdDirty ? 'Save file' : 'Save';
+            updateSaveButtonLabel();
             const dirty = mdDirty || hasUnsavedChanges;
             updateSaveStatus(dirty ? 'unsaved' : 'saved', dirty ? 'Unsaved changes' : 'Loaded');
         }
@@ -1684,6 +1844,7 @@
                     if (panel) panel.setAttribute('aria-labelledby', tabControlId);
                 }
             });
+            updateSaveButtonLabel();
         }
 
         function switchToTab(tabId) {
@@ -1713,9 +1874,9 @@
                 if (choice === 'save') {
                     // The save must target THIS tab; make it active if it isn't.
                     if (!closingActive) { saveCurrentTabState(); loadTabState(tabId); renderTabUI(); }
-                    // With a write handle we save in place; otherwise fall back to a
-                    // download so the edited bytes still leave the app.
-                    const ok = currentFileHandle ? await saveMarkdownToFile() : (downloadMarkdown(), true);
+                    // With a write handle we save in place; otherwise share/download
+                    // a portable copy so the edited bytes still leave the app.
+                    const ok = currentFileHandle ? await saveMarkdownToFile() : await savePortableMarkdownCopy();
                     if (!ok) {
                         // Save failed or was declined → do NOT close; return the user
                         // to where they were if we had to switch tabs.
@@ -1776,7 +1937,7 @@
                         <p class="welcome-subtitle">A private Markdown reader, editor &amp; review workspace</p>
                     <h1>Read &amp; annotate markdown</h1>
                     <button class="welcome-open-btn" type="button">＋&nbsp; Open a Markdown file</button>
-                    <p>… or drag and drop a <code>.md</code> file anywhere on this window.</p>
+                    <p class="welcome-drop-hint">… or drag and drop a <code>.md</code> file anywhere on this window.</p>
                     <p class="welcome-hint">Comment and turn notes into tasks, then hand them to a teammate or an AI agent to act on, or take in theirs. Nothing leaves your device.</p>
                 </div>
             </div>`;
@@ -1784,6 +1945,7 @@
             tocList.innerHTML = '';
             tabList.innerHTML = '';
             saveNowBtn.disabled = true;
+            updateSaveButtonLabel();
             updateSaveStatus('saved', 'No file loaded');
             commentsPanel.classList.remove('visible');
             refreshPanel();
@@ -2245,11 +2407,16 @@
 
         // Legacy file input handler
         fileInput.addEventListener('change', async (e) => {
-            if (e.target.files.length > 0) {
-                const file = e.target.files[0];
+            const available = Math.max(0, MAX_TABS - openTabs.length);
+            const files = [...e.target.files].slice(0, available);
+            if (e.target.files.length > files.length) {
+                showToast(`Opened ${files.length}; Markarium.md supports up to ${MAX_TABS} tabs at once.`, 5000);
+            }
+            for (const file of files) {
                 currentFileHandle = null;
                 await loadFileFromHandle(file, file.name, null);
             }
+            e.target.value = '';
         });
 
         // Drag and drop
@@ -2833,6 +3000,7 @@
         // Comments and Tasks are the same annotation kind; the panel filters between
         // them via a segmented toggle in its header. A single top-bar button opens/closes.
         function openPanel(view) {
+            window.__mobileNav?.close(false);
             if (view) panelFilter = view;
             commentsPanel.classList.add('visible');
             refreshPanel();
@@ -4036,7 +4204,9 @@
         // edits, otherwise flushes annotations.
         saveNowBtn.addEventListener('click', async () => {
             if (autosaveTimeout) clearTimeout(autosaveTimeout);
-            if (mdDirty || isEditMode) {
+            if (!currentFileHandle) {
+                await savePortableMarkdownCopy();
+            } else if (mdDirty || isEditMode) {
                 await saveMarkdownToFile();
             } else {
                 await saveAnnotationsToFile();
@@ -4049,7 +4219,8 @@
                 e.preventDefault();
                 if (currentFile) {
                     if (autosaveTimeout) clearTimeout(autosaveTimeout);
-                    if (mdDirty || isEditMode) await saveMarkdownToFile();
+                    if (!currentFileHandle) await savePortableMarkdownCopy();
+                    else if (mdDirty || isEditMode) await saveMarkdownToFile();
                     else await saveAnnotationsToFile();
                 }
             }
@@ -4739,40 +4910,69 @@ img { max-width: 100%; }
             const bar = document.getElementById('floatingToolbar');
             if (!bar) return;
             let savedRange = null;
+            let selectionTimer = null;
+            let barInteracting = false;
 
-            function hide() { bar.classList.remove('visible'); }
+            function hide() {
+                if (selectionTimer) clearTimeout(selectionTimer);
+                selectionTimer = null;
+                bar.classList.remove('visible');
+            }
             function showFor(range) {
                 savedRange = range.cloneRange();
                 const rect = range.getBoundingClientRect();
                 if (!rect || (rect.width === 0 && rect.height === 0)) { hide(); return; }
                 bar.classList.add('visible');
                 const bw = bar.offsetWidth, bh = bar.offsetHeight;
+                const viewport = window.visualViewport;
+                const viewLeft = viewport ? viewport.offsetLeft : 0;
+                const viewTop = viewport ? viewport.offsetTop : 0;
+                const viewWidth = viewport ? viewport.width : window.innerWidth;
+                const viewHeight = viewport ? viewport.height : window.innerHeight;
                 let top = rect.top - bh - 10;
-                if (top < 8) top = rect.bottom + 10;         // flip below if no room above
+                if (top < viewTop + 8) top = rect.bottom + 10; // flip below if no room above
+                top = Math.max(viewTop + 8, Math.min(top, viewTop + viewHeight - bh - 8));
                 let left = rect.left + rect.width / 2 - bw / 2;
-                left = Math.max(8, Math.min(left, window.innerWidth - bw - 8));
+                left = Math.max(viewLeft + 8, Math.min(left, viewLeft + viewWidth - bw - 8));
                 bar.style.top = top + 'px';
                 bar.style.left = left + 'px';
+            }
+            function scheduleShow(delay = 0) {
+                if (selectionTimer) clearTimeout(selectionTimer);
+                selectionTimer = setTimeout(() => {
+                    selectionTimer = null;
+                    if (isEditMode || barInteracting) return;
+                    const range = getActiveRange();
+                    if (range && range.toString().trim()) showFor(range);
+                    else hide();
+                }, delay);
             }
 
             // Keep the selection alive when interacting with the bar.
             bar.addEventListener('mousedown', e => e.preventDefault());
+            bar.addEventListener('pointerdown', () => { barInteracting = true; });
+            const finishBarInteraction = () => setTimeout(() => { barInteracting = false; }, 0);
+            bar.addEventListener('pointerup', finishBarInteraction);
+            bar.addEventListener('pointercancel', finishBarInteraction);
 
-            content.addEventListener('mouseup', () => {
-                if (isEditMode) return;
-                setTimeout(() => {
-                    const range = getActiveRange();
-                    if (range && range.toString().trim()) showFor(range);
-                    else hide();
-                }, 0);
+            content.addEventListener('pointerup', event => {
+                scheduleShow(event.pointerType === 'touch' ? 180 : 0);
             });
+            if (!window.PointerEvent) content.addEventListener('touchend', () => scheduleShow(180));
 
             document.addEventListener('selectionchange', () => {
                 const sel = window.getSelection();
-                if (!sel || sel.isCollapsed) hide();
+                if (!sel || sel.isCollapsed) {
+                    if (!barInteracting) hide();
+                } else {
+                    // iPad text-selection handles do not reliably emit mouseup.
+                    // Wait for Safari to settle the range, then expose the tools.
+                    scheduleShow(140);
+                }
             });
             content.addEventListener('scroll', hide);
             window.addEventListener('resize', hide);
+            window.visualViewport?.addEventListener('resize', hide);
 
             bar.querySelectorAll('.highlight-btn').forEach(btn => btn.addEventListener('click', () => {
                 if (savedRange) applyHighlightToSelection(btn.dataset.highlight, savedRange);
@@ -4801,13 +5001,10 @@ img { max-width: 100%; }
             mdDirty = dirty;
             const tab = openTabs.find(t => t.id === activeTabId);
             if (tab) tab.sourceDirty = dirty;
-            const saveBtn = document.getElementById('saveNowBtn');
             if (dirty) {
                 updateSaveStatus('unsaved', 'Unsaved edits');
-                if (saveBtn) saveBtn.textContent = 'Save file';
-            } else if (saveBtn) {
-                saveBtn.textContent = 'Save';
             }
+            updateSaveButtonLabel();
             renderTabUI();
         }
 
@@ -4933,11 +5130,7 @@ img { max-width: 100%; }
             }
 
             if (!currentFileHandle) {
-                // Opened via drag-drop / file input / restored after refresh - no
-                // write handle exists. Degrade honestly instead of pretending.
-                updateSaveStatus('unsaved', 'Can’t save in place');
-                showToast('This file was opened without write access. Use Export ▸ Download .md, or re-open it with “Open file” to enable saving in place.', 6000);
-                return false;
+                return savePortableMarkdownCopy();
             }
 
             try {
@@ -4964,16 +5157,68 @@ img { max-width: 100%; }
             }
         }
 
-        function downloadMarkdown() {
-            if (!currentFileContent) { showToast('No file loaded'); return; }
+        function markdownFilePayload() {
+            if (currentFileContent == null) return null;
             const out = embedAnnotationBlock(currentFileContent, annotations[currentFile] || [], currentFile);
-            const blob = new Blob([out], { type: 'text/markdown' });
+            return { out, name: currentFileName || 'document.md' };
+        }
+
+        function downloadMarkdown() {
+            const payload = markdownFilePayload();
+            if (!payload) { showToast('No file loaded'); return false; }
+            const blob = new Blob([payload.out], { type: 'text/markdown' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = currentFileName || 'document.md';
+            a.download = payload.name;
+            a.style.display = 'none';
+            document.body.appendChild(a);
             a.click();
-            URL.revokeObjectURL(url);
+            a.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+            return true;
+        }
+
+        async function savePortableMarkdownCopy() {
+            const payload = markdownFilePayload();
+            if (!payload) { showToast('No file loaded'); return false; }
+            if (hasUnsavedChanges) await saveAnnotationsToFile();
+
+            if (isAppleTouchDevice() && navigator.share && navigator.canShare) {
+                try {
+                    const file = new File([payload.out], payload.name, { type: 'text/markdown' });
+                    if (navigator.canShare({ files: [file] })) {
+                        await navigator.share({ files: [file], title: payload.name });
+                        markMdDirty(false);
+                        hasUnsavedChanges = false;
+                        const tab = openTabs.find(t => t.id === activeTabId);
+                        if (tab) { tab.sourceDirty = false; tab.annotationsDirty = false; }
+                        renderTabUI();
+                        persistTabs();
+                        updateSaveStatus('saved', 'Copy shared to Files');
+                        showToast('Portable Markdown copy shared. Choose Save to Files to keep it.');
+                        return true;
+                    }
+                } catch (e) {
+                    if (e && e.name === 'AbortError') {
+                        updateSaveStatus('unsaved', 'Save copy cancelled');
+                        return false;
+                    }
+                    console.warn('File sharing unavailable; falling back to download', e);
+                }
+            }
+
+            const ok = downloadMarkdown();
+            if (!ok) return false;
+            markMdDirty(false);
+            hasUnsavedChanges = false;
+            const tab = openTabs.find(t => t.id === activeTabId);
+            if (tab) { tab.sourceDirty = false; tab.annotationsDirty = false; }
+            renderTabUI();
+            persistTabs();
+            updateSaveStatus('saved', 'Portable copy downloaded');
+            showToast('Portable Markdown copy downloaded.');
+            return true;
         }
 
         function initEditMode() {
@@ -4996,7 +5241,10 @@ img { max-width: 100%; }
 
         // ── Open-file button (uses the write-capable picker when available) ────
         const openFileBtn = document.getElementById('openFileBtn');
-        if (openFileBtn) openFileBtn.addEventListener('click', () => openFileWithPicker());
+        if (openFileBtn) openFileBtn.addEventListener('click', () => {
+            window.__mobileNav?.close(false);
+            openFileWithPicker();
+        });
         // New blank document → opens in edit mode; first Save prompts Save As (app) / download (browser).
         let untitledSeq = 0;
         function newDocument() {
@@ -5015,12 +5263,16 @@ img { max-width: 100%; }
             if (!annotations[fileId]) annotations[fileId] = [];
             renderMarkdown('');
             if (saveNowBtn) saveNowBtn.disabled = false;
+            updateSaveButtonLabel();
             renderTabUI();
             persistTabs();
             setEditMode(true);
         }
         const newFileBtn = document.getElementById('newFileBtn');
-        if (newFileBtn) newFileBtn.addEventListener('click', newDocument);
+        if (newFileBtn) newFileBtn.addEventListener('click', () => {
+            window.__mobileNav?.close(false);
+            newDocument();
+        });
 
         let modalReturnFocus = null;
         function modalFocusable(overlay) {
@@ -5041,6 +5293,7 @@ img { max-width: 100%; }
         function closeAccessibleModal(overlay) {
             overlay.classList.remove('visible');
             setModalBackgroundInert(overlay, false);
+            window.__mobileNav?.sync();
             const target = modalReturnFocus;
             modalReturnFocus = null;
             if (target && target.focus) target.focus();
@@ -5635,7 +5888,7 @@ img { max-width: 100%; }
         function initToolbarKeyboard(toolbar) {
             if (!toolbar) return;
             const controls = () => [...toolbar.querySelectorAll(':scope > button, :scope > .export-wrap > button, :scope > .ft-group > button')]
-                .filter(button => !button.disabled);
+                .filter(button => !button.disabled && button.getClientRects().length > 0);
             const setCurrent = (button) => controls().forEach(item => { item.tabIndex = item === button ? 0 : -1; });
             const initial = controls()[0];
             if (initial) setCurrent(initial);
@@ -5659,6 +5912,91 @@ img { max-width: 100%; }
             });
         }
 
+        function initMobileLayout() {
+            const sidebar = document.getElementById('mobileSidebar');
+            const openButton = document.getElementById('mobileNavBtn');
+            const closeButton = document.getElementById('mobileSidebarClose');
+            const backdrop = document.getElementById('mobileNavBackdrop');
+            if (!sidebar || !openButton || !closeButton || !backdrop) return;
+
+            const compactLayout = window.matchMedia('(max-width: 1024px)');
+            const workspace = document.querySelector('.main');
+            let returnFocus = null;
+
+            const syncClosedState = () => {
+                const compact = compactLayout.matches;
+                const open = compact && sidebar.classList.contains('mobile-open');
+                openButton.setAttribute('aria-expanded', String(open));
+                backdrop.classList.toggle('visible', open);
+                document.body.classList.toggle('mobile-nav-open', open);
+                if (workspace) workspace.inert = open;
+                if (compact) {
+                    sidebar.inert = !open;
+                    sidebar.setAttribute('aria-hidden', String(!open));
+                } else {
+                    sidebar.inert = false;
+                    sidebar.removeAttribute('aria-hidden');
+                    sidebar.classList.remove('mobile-open');
+                    backdrop.classList.remove('visible');
+                    document.body.classList.remove('mobile-nav-open');
+                    if (workspace) workspace.inert = false;
+                    openButton.setAttribute('aria-expanded', 'false');
+                }
+            };
+
+            const close = (restore = true) => {
+                if (!sidebar.classList.contains('mobile-open')) return;
+                const target = returnFocus;
+                returnFocus = null;
+                sidebar.classList.remove('mobile-open');
+                if (workspace) workspace.inert = false;
+                if (restore && target && target.isConnected) target.focus();
+                else openButton.focus();
+                syncClosedState();
+            };
+
+            const open = () => {
+                if (!compactLayout.matches) return;
+                if (commentsPanel.classList.contains('visible')) {
+                    commentsPanel.classList.remove('visible');
+                    refreshPanel();
+                }
+                returnFocus = document.activeElement;
+                sidebar.classList.add('mobile-open');
+                syncClosedState();
+                requestAnimationFrame(() => closeButton.focus());
+            };
+
+            window.__mobileNav = { open, close, sync: syncClosedState };
+            openButton.addEventListener('click', () => sidebar.classList.contains('mobile-open') ? close() : open());
+            closeButton.addEventListener('click', () => close());
+            backdrop.addEventListener('click', () => close());
+            tocList.addEventListener('click', event => {
+                if (!event.target.closest('.toc-item') || !compactLayout.matches) return;
+                close(false);
+                requestAnimationFrame(() => content.focus({ preventScroll: true }));
+            });
+            document.addEventListener('keydown', event => {
+                if (event.key === 'Escape' && sidebar.classList.contains('mobile-open')) {
+                    event.preventDefault();
+                    close();
+                }
+            });
+            compactLayout.addEventListener?.('change', syncClosedState);
+            syncClosedState();
+
+            // iPadOS changes the visual viewport when Safari chrome or the software
+            // keyboard appears. Keep the workspace and fixed panels inside it.
+            const updateViewportHeight = () => {
+                const height = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+                document.documentElement.style.setProperty('--app-height', Math.round(height) + 'px');
+            };
+            updateViewportHeight();
+            window.addEventListener('resize', updateViewportHeight);
+            window.addEventListener('orientationchange', updateViewportHeight);
+            window.visualViewport?.addEventListener('resize', updateViewportHeight);
+        }
+
         // ── Boot the new subsystems ───────────────────────────────────────────
         initToolbarKeyboard(document.querySelector('.topbar'));
         initToolbarKeyboard(document.getElementById('floatingToolbar'));
@@ -5669,6 +6007,7 @@ img { max-width: 100%; }
         initTasksUI();
         initExtras();
         initPanelResize();
+        initMobileLayout();
 
     </script>
 </body>

@@ -42,6 +42,14 @@ You can also serve the same file with GitHub Pages. No package installation or c
 
 > Chrome and Edge can save directly to an opened file when the File System Access API is available. Other browsers keep the reading, annotation and editing workflow, then save through a download.
 
+### Work on iPad or phone
+
+Open the [web edition](https://zoyaslavina.github.io/markarium/) in Safari. In compact and split-screen layouts, the first top-bar button opens a touch-friendly drawer containing **Open file**, **New document** and the document outline. You can select several Markdown files from Files, use the full reader/editor/review workflow, and work with an external keyboard or touch.
+
+Safari does not grant web pages permission to overwrite an opened local file. Markarium.md therefore labels the action **Save copy** and opens the iOS/iPadOS share sheet; choose **Save to Files** to keep the portable Markdown file with its embedded notes. Cancelling keeps the document marked unsaved.
+
+For a train or other offline session, load Markarium.md before connectivity disappears and keep the browser tab available. After it has loaded, the workspace makes no network requests. Save important work to Files before closing Safari; the one-file privacy model intentionally does not install a service worker or background offline cache.
+
 ## What it does
 
 ### Read and navigate
@@ -66,6 +74,7 @@ You can also serve the same file with GitHub Pages. No package installation or c
 
 - Semantic document landmarks, tabs, tab panels, dialogs, menus, progress status and table headings
 - Complete keyboard paths for toolbars, tabs, menus, notes, dialogs, outline folding and the resizable notes panel
+- Responsive iPad/phone navigation, safe-area and software-keyboard handling, visible touch selection tools and 44-point primary touch targets
 - Visible focus, screen-reader names, live save/status announcements, reduced-motion and forced-colour support
 - Stable heading identifiers and explicit control relationships for assistive technologies and software agents
 - Named copy actions and structured table/code controls, avoiding coordinate-only interaction

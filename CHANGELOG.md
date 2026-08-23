@@ -4,6 +4,19 @@ All notable user-visible changes to the standalone edition are recorded here.
 
 ## Unreleased
 
+### iPad, phone and split-screen work
+
+- Added a focus-managed navigation drawer so Open file, New document and the document outline remain available when the permanent sidebar no longer fits.
+- Added safe-area and dynamic-viewport sizing for Safari chrome and the software keyboard, responsive Notes/search/preferences/dialog layouts, and compact phone typography.
+- Increased primary coarse-pointer targets, made heading folds visible without hover, and made the selection annotation toolbar wrap and remain inside the visible screen.
+- Touch text selections now raise annotation controls reliably on iPadOS instead of depending on a mouseup event.
+- The file input now accepts several Markdown files at once when the browser picker supports multiple selection.
+
+### Safari saving
+
+- Browsers without direct write access now label the main action **Save copy**. On iPad and iPhone it invokes the share sheet for **Save to Files**, with a download fallback elsewhere.
+- A portable save includes source edits and embedded annotations, preserves a browser backup, and clears the unsaved state only after sharing or downloading succeeds.
+
 ## 1.0.1 — 2026-08-18
 
 ### Reading and editing

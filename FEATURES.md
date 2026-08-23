@@ -18,6 +18,7 @@ Status labels:
 | Multiple open documents | Shared | Tabs, wiki-links and backlinks; tab controls follow keyboard tab semantics. |
 | Math formulas | Shared | KaTeX is embedded in the standalone file and works offline. |
 | Reading appearance | Shared | System/day/night/high-contrast themes, font-size control, optional justification and hyphenation. Settings belong under **Aa**. |
+| Responsive touch workspace | Standalone | iPad/phone drawer for files and outline, compact notes overlay, safe-area and software-keyboard sizing, touch selection tools, multi-file picking and large touch targets. |
 | Export | Standalone | Markdown, clean Markdown, annotation JSON and browser PDF/print workflows. |
 
 ## Distinctive review and editing workflow
@@ -67,6 +68,7 @@ These decisions serve keyboard users, screen-reader users, voice control, browse
 | Annotation imports | Records are allow-listed, bounded and normalized; imported file identifiers cannot redirect data into another document. |
 | Data ownership | Documents and annotations stay in browser storage or user-selected files. There are no accounts, analytics or telemetry. |
 | Clipboard | Written only after the user activates a named copy control. |
+| iPad/iPhone saving | Safari cannot overwrite the selected source. **Save copy** invokes the share sheet when available so the portable Markdown can be saved to Files; cancellation keeps the unsaved state. |
 
 ## Desktop app additions
 

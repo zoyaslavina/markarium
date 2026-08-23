@@ -15,6 +15,9 @@ Accessibility is part of the standalone HTML edition, not an app-only feature. M
 - Table heading scopes, code-language labels and explicit copy-code/copy-table controls.
 - Stable heading identifiers and explicit control relationships that also improve voice control and software-agent navigation.
 - Comments and tasks represented in the Notes panel as well as by in-document styling, so their existence is not communicated by colour alone.
+- A named, focus-managed navigation drawer exposes files and the outline in iPad, phone and split-screen layouts without leaving hidden controls in the keyboard order.
+- Coarse-pointer layouts use large primary targets, permanently visible section-fold controls and a touch-selection annotation toolbar that stays within the visual viewport.
+- Safe-area insets, dynamic viewport sizing and 16-pixel form controls prevent browser chrome, the software keyboard and Safari focus zoom from obscuring work.
 
 ## Verification
 
@@ -23,6 +26,8 @@ The 1.0.0 release was checked with keyboard-driven interaction tests, semantic D
 ## Known boundaries
 
 - Native file picker and direct-save behaviour varies by browser. Where direct writing is unavailable, saving falls back to a download.
+- On iPadOS and iOS, **Save copy** uses the system share sheet when file sharing is supported. Safari cannot silently overwrite the original file, so the user must choose **Save to Files**.
+- The loaded workspace keeps working without a network connection, but the GitHub Pages URL is not installed as an offline PWA. It must be loaded before going offline and kept available in the browser.
 - PDF accessibility depends on the browser's print-to-PDF implementation and is not currently claimed to produce a tagged PDF.
 - Very wide Markdown tables remain horizontally scrollable to preserve their data structure.
 - The desktop app will require its own accessibility verification after shared HTML improvements and native integrations are combined.
