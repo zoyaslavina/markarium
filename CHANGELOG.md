@@ -7,15 +7,17 @@ All notable user-visible changes to the standalone edition are recorded here.
 ### iPad, phone and split-screen work
 
 - Added a focus-managed navigation drawer so Open file, New document and the document outline remain available when the permanent sidebar no longer fits.
-- Added safe-area and dynamic-viewport sizing for Safari chrome and the software keyboard, responsive Notes/search/preferences/dialog layouts, and compact phone typography.
+- Stabilized safe-area and visual-viewport sizing through Safari chrome, software-keyboard, orientation and split-screen changes, with responsive Notes/search/preferences/dialog layouts and compact phone typography.
 - Increased primary coarse-pointer targets, made heading folds visible without hover, and made the selection annotation toolbar wrap and remain inside the visible screen.
+- Kept **Notes** as a dedicated right-side iPad action, made fold indicators visually larger, and positioned the compact annotation palette away from Safari’s native selection controls.
+- Repeated **Edit** / **Done** switching now returns to the active text anchor without an unnecessary rerender when no source changed.
 - Touch text selections now raise annotation controls reliably on iPadOS instead of depending on a mouseup event.
 - The file input now accepts several Markdown files at once when the browser picker supports multiple selection.
 
 ### Safari saving
 
-- Browsers without direct write access now label the main action **Save copy**. On iPad and iPhone it invokes the share sheet for **Save to Files**, with a download fallback elsewhere.
-- A portable save includes source edits and embedded annotations, preserves a browser backup, and clears the unsaved state only after sharing or downloading succeeds.
+- Browsers without direct write access now label the main action **Save copy**; on iPad and iPhone it is explicitly **Share copy** and invokes the share sheet for **Save to Files**, with a download fallback elsewhere.
+- A portable copy includes source edits and embedded annotations and preserves a browser backup. Safari shares are deliberately left marked unsaved until the user reopens the saved copy, because the browser cannot verify the share destination.
 
 ## 1.0.1 — 2026-08-18
 

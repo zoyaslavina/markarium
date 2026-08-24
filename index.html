@@ -164,6 +164,14 @@
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
+        /* Keep iPadOS from silently enlarging text after focus/orientation changes.
+           Pinch zoom remains available: we deliberately do not disable it. */
+        html {
+            height: 100%;
+            -webkit-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+        }
+
         .sr-only {
             position: absolute !important; width: 1px !important; height: 1px !important;
             padding: 0 !important; margin: -1px !important; overflow: hidden !important;
@@ -171,8 +179,10 @@
         }
 
         html, body {
+            width: 100%;
             height: 100%;
             height: var(--app-height, 100dvh);
+            min-height: 0;
             overflow: hidden;
             overscroll-behavior: none;
         }
@@ -180,6 +190,7 @@
         body {
             font-family: var(--sans);
             display: flex;
+            min-height: 0;
             background: var(--bg-primary);
             color: var(--text-primary);
             -webkit-font-smoothing: antialiased;
@@ -189,7 +200,7 @@
 
         button { font-family: inherit; }
 
-        .mobile-nav-btn, .mobile-sidebar-close, .mobile-nav-backdrop { display: none; }
+        .mobile-nav-btn, .mobile-notes-btn, .mobile-sidebar-close, .mobile-nav-backdrop { display: none; }
 
         /* ── Sidebar / TOC ───────────────────────────────────────────────────── */
         .sidebar {
@@ -289,7 +300,7 @@
         .toc-h4 { padding-left: 52px; font-size: 0.78rem; color: var(--text-faint); }
 
         /* ── Main column ─────────────────────────────────────────────────────── */
-        .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+        .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; min-height: 0; height: 100%; }
 
         .topbar {
             padding: 10px 16px;
@@ -468,6 +479,7 @@
 
         .content {
             flex: 1;
+            min-height: 0;
             padding: 48px 56px 96px;
             overflow-y: auto;
             background: var(--bg-primary);
@@ -491,6 +503,7 @@
         .editor {
             display: none;
             flex: 1;
+            min-height: 0;
             width: 100%;
             border: none;
             outline: none;
@@ -661,6 +674,8 @@
             transition: opacity 0.13s ease, transform 0.13s ease;
         }
         .floating-toolbar.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+        .floating-toolbar.touch-sheet { transform: translate(-50%, 10px); }
+        .floating-toolbar.touch-sheet.visible { transform: translate(-50%, 0); }
         .ft-group { display: flex; align-items: center; gap: 5px; }
         .ft-div { width: 1px; height: 20px; background: var(--border-color); }
         .floating-toolbar .highlight-btn {
@@ -809,7 +824,14 @@
         .add-comment-area button:hover { background: var(--accent-hover); }
 
         /* ── Welcome ─────────────────────────────────────────────────────────── */
-        .welcome { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; text-align: center; max-width: none !important; }
+        /* The welcome screen owns the full reader pane. Keeping its padding here,
+           rather than on the scroll container, gives it a true visual centre. */
+        .content:has(> .welcome) { display: flex; padding: 0; }
+        .welcome {
+            display: flex; flex: 1; min-height: 0; flex-direction: column;
+            justify-content: center; align-items: center;
+            padding: 32px; text-align: center; max-width: none !important;
+        }
         .welcome-card {
             padding: 52px 60px;
             border-radius: 20px;
@@ -1151,13 +1173,16 @@
                 font-size: 1.5rem; cursor: pointer;
             }
             .mobile-nav-backdrop {
-                display: block; position: fixed; inset: 0; z-index: 1890;
+                display: block; position: fixed; top: var(--visual-viewport-top, 0px); right: 0; bottom: auto; left: 0;
+                height: var(--app-height, 100dvh); z-index: 1890;
                 background: rgba(0,0,0,0.46); opacity: 0; pointer-events: none;
                 transition: opacity 0.18s ease;
             }
             .mobile-nav-backdrop.visible { opacity: 1; pointer-events: auto; }
             .sidebar {
-                display: flex; position: fixed; z-index: 1900; inset: 0 auto 0 0;
+                display: flex; position: fixed; z-index: 1900;
+                top: var(--visual-viewport-top, 0px); right: auto; bottom: auto; left: 0;
+                height: var(--app-height, 100dvh);
                 width: min(88vw, 360px); max-width: 100%;
                 padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom);
                 box-shadow: var(--shadow-lg); transform: translateX(-105%);
@@ -1180,7 +1205,8 @@
                 -webkit-overflow-scrolling: touch;
             }
             .comments-panel {
-                position: fixed; right: 0; top: 0; bottom: 0;
+                position: fixed; right: 0; top: var(--visual-viewport-top, 0px); bottom: auto;
+                height: var(--app-height, 100dvh);
                 width: min(86vw, 420px) !important; max-width: none; z-index: 1800;
                 padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom);
                 box-shadow: var(--shadow-lg);
@@ -1218,12 +1244,23 @@
             }
 
             /* Keep section folds visible and reachable without hover. */
-            .heading-fold { left: -42px; top: -5px; width: 44px; height: 44px; opacity: 0.8; }
+            .heading-fold {
+                left: -42px; top: -5px; width: 44px; height: 44px;
+                font-size: 1rem; font-weight: 700; opacity: 0.8;
+            }
             .content h1:hover .heading-fold, .content h2:hover .heading-fold,
             .content h3:hover .heading-fold, .content h4:hover .heading-fold { opacity: 1; }
 
             .welcome-card { padding: 38px 34px; max-width: min(540px, 100%); }
             .welcome-drop-hint { display: none; }
+        }
+
+        /* iPad has room for a stable two-sided toolbar. Notes stays on the right,
+           so it does not disappear when a long document tab is selected. */
+        @media (min-width: 561px) and (max-width: 1024px) {
+            .topbar { overflow-x: visible; }
+            .topbar #toggleCommentsBtn { display: none; }
+            .mobile-notes-btn { display: inline-flex; }
         }
 
         @media (max-width: 560px) {
@@ -1265,7 +1302,30 @@
                 max-width: calc(100vw - 16px); flex-wrap: wrap; justify-content: center;
                 gap: 5px 8px; border-radius: 18px; padding: 8px;
             }
-            .floating-toolbar .highlight-btn, .floating-toolbar .color-btn { width: 44px; height: 44px; }
+            .floating-toolbar.touch-sheet { width: min(680px, calc(100vw - 16px)); }
+            /* Retain 44pt touch targets while making the colours themselves compact.
+               This prevents the annotation palette from visually swallowing a page. */
+            .floating-toolbar .highlight-btn, .floating-toolbar .color-btn {
+                position: relative; width: 44px; height: 44px; background: transparent !important; border: 0;
+            }
+            .floating-toolbar .highlight-btn::after, .floating-toolbar .color-btn::after {
+                content: ''; display: block; position: absolute; inset: 8px; background: var(--swatch);
+                border: 1px solid color-mix(in srgb, var(--text-primary) 18%, transparent);
+                box-shadow: inset 0 0 0 1px rgba(255,255,255,0.18);
+            }
+            .floating-toolbar .highlight-btn::after { border-radius: 7px; }
+            .floating-toolbar .color-btn::after { border-radius: 50%; }
+            .floating-toolbar .highlight-btn.hl-coral { --swatch: rgba(232, 160, 144, 0.85); }
+            .floating-toolbar .highlight-btn.hl-lilac { --swatch: rgba(201, 160, 201, 0.85); }
+            .floating-toolbar .highlight-btn.hl-turquoise { --swatch: rgba(91, 189, 189, 0.85); }
+            .floating-toolbar .highlight-btn.hl-gold { --swatch: rgba(212, 168, 74, 0.85); }
+            .floating-toolbar .highlight-btn.hl-blue { --swatch: rgba(120, 160, 200, 0.9); }
+            .floating-toolbar .color-btn.text-default { --swatch: var(--text-primary); }
+            .floating-toolbar .color-btn.text-coral { --swatch: #e8a090; }
+            .floating-toolbar .color-btn.text-purple { --swatch: #b483b4; }
+            .floating-toolbar .color-btn.text-turquoise { --swatch: #5bbdbd; }
+            .floating-toolbar .color-btn.text-gold { --swatch: #d4a84a; }
+            .floating-toolbar .color-btn.text-burnt { --swatch: #d98b6b; }
             .ft-action { min-height: 44px; padding: 8px 12px; }
             .ft-div { height: 28px; }
             .comment-item:hover { transform: none; }
@@ -1314,7 +1374,7 @@
             <button class="icon-btn" id="findBtn" title="Find in document (⌘F / Ctrl+F)" aria-label="Find in document">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>
             </button>
-            <button class="btn" id="toggleCommentsBtn" aria-expanded="false" aria-controls="commentsPanel">Notes</button>
+            <button class="btn" id="toggleCommentsBtn" data-notes-toggle aria-expanded="false" aria-controls="commentsPanel">Notes</button>
             <button class="btn mode-toggle" id="editToggleBtn" title="Toggle edit mode (⌘E / Ctrl+E)" aria-pressed="false">✎ Edit</button>
 
             <div class="topbar-spacer"></div>
@@ -1338,11 +1398,12 @@
             </div>
 
             <button class="btn btn-primary" id="saveNowBtn" disabled title="Save (⌘S / Ctrl+S)">Save</button>
+            <button class="btn mobile-notes-btn" id="mobileNotesBtn" data-notes-toggle aria-expanded="false" aria-controls="commentsPanel">Notes</button>
 
             <button class="icon-btn" id="readPrefsBtn" title="Reading preferences" aria-label="Reading preferences" aria-haspopup="dialog" aria-expanded="false" aria-controls="readPrefs" style="font-family:var(--serif);font-weight:700;font-size:0.95rem;">Aa</button>
             <button class="icon-btn theme-toggle" id="themeToggle" title="Toggle day / night" aria-label="Toggle day or night theme">
-                <span class="icon-sun">☀</span>
-                <span class="icon-moon">☾</span>
+                <span class="icon-sun">☀️</span>
+                <span class="icon-moon">🌙</span>
             </button>
         </div>
 
@@ -1523,7 +1584,7 @@
             <h4>Files &amp; tabs</h4>
             <ul class="help-feats">
                 <li><b>Open file</b> in the sidebar, or <b>drag &amp; drop</b> a <code>.md</code> / <code>.markdown</code> / <code>.txt</code> anywhere on the window. Open several at once - they become <b>tabs</b>, and reopen where you left off.</li>
-                <li>On <b>iPad or phone</b>, use the menu button at the start of the top bar for Open file, New document and Contents. You can choose several files from Files at once.</li>
+                <li>On <b>iPad or phone</b>, use the menu button at the start of the top bar for Open file, New document and Contents. On iPad, <b>Notes</b> stays available at the right of the toolbar. You can choose several files from Files at once.</li>
             </ul>
 
             <h4>Reading &amp; navigation</h4>
@@ -1546,7 +1607,7 @@
             <h4>Edit, save &amp; share</h4>
             <ul class="help-feats">
                 <li><b>Edit</b> (⌘E) the raw markdown and <b>Save</b> (⌘S) it back to the file. Highlights &amp; notes can travel <b>embedded in the .md</b>, or exported as a separate <code>.json</code>.</li>
-                <li>Safari cannot overwrite an opened file directly. On iPad and iPhone, <b>Save copy</b> opens the share sheet so you can replace or keep a copy in Files; cancelling leaves the document marked unsaved.</li>
+                <li>Safari cannot overwrite an opened file directly. On iPad and iPhone, <b>Share copy</b> opens the share sheet; choose Save to Files, then reopen that copy. The current tab stays marked unsaved because Safari cannot confirm where the share was saved.</li>
                 <li>For an offline journey, open Markarium.md before losing connectivity and keep the tab available. Once loaded, the workspace makes no network requests; save important work to Files before closing the browser.</li>
                 <li><b>Wiki-links</b> <code>[[Heading]]</code> jump to headings or other open tabs; <b>backlinks</b> list what links here; plus <b>footnotes</b> and <b>PDF</b> export.</li>
                 <li><b>Math</b> write <code>$…$</code> for an inline formula or <code>$$…$$</code> for a display one (rendered with KaTeX, fully offline).</li>
@@ -1709,7 +1770,7 @@
                 return;
             }
             if (!currentFileHandle) {
-                saveNowBtn.textContent = 'Save copy';
+                saveNowBtn.textContent = isAppleTouchDevice() ? 'Share copy' : 'Save copy';
                 saveNowBtn.title = isAppleTouchDevice()
                     ? 'Share a portable Markdown copy to Files'
                     : 'Download a portable Markdown copy';
@@ -2991,7 +3052,8 @@
                 };
                 commentsPanel.classList.add('visible');
                 refreshPanel();
-                document.getElementById('newCommentText').focus();
+                // Let Safari dismiss its native selection callout before focusing.
+                requestAnimationFrame(() => document.getElementById('newCommentText').focus());
             } else {
                 showToast('Select some text first');
             }
@@ -3022,11 +3084,10 @@
         function refreshPanel() {
             const visible = commentsPanel.classList.contains('visible');
             document.body.classList.toggle('panel-open', visible);
-            const openBtn = document.getElementById('toggleCommentsBtn');
-            if (openBtn) {
+            document.querySelectorAll('[data-notes-toggle]').forEach(openBtn => {
                 openBtn.setAttribute('aria-expanded', String(visible));
                 openBtn.classList.toggle('active', visible);
-            }
+            });
             const segC = document.getElementById('segComments');
             const segT = document.getElementById('segTasks');
             if (segC && segT) {
@@ -3123,7 +3184,7 @@
             }
         }
 
-        document.getElementById('toggleCommentsBtn').addEventListener('click', togglePanel);
+        document.querySelectorAll('[data-notes-toggle]').forEach(btn => btn.addEventListener('click', togglePanel));
         document.getElementById('segComments').addEventListener('click', () => setPanelView('comments'));
         document.getElementById('segTasks').addEventListener('click', () => setPanelView('tasks'));
         document.getElementById('copyNotesBtn').addEventListener('click', copyNotesForAI);
@@ -3196,7 +3257,8 @@
             pendingCommentSelection = null;
             document.getElementById('newCommentText').value = '';
             refreshPanel();
-            document.getElementById('toggleCommentsBtn').focus();
+            const notesToggle = document.querySelector('[data-notes-toggle]:not([hidden])');
+            if (notesToggle) notesToggle.focus();
         });
 
         // Comment navigation
@@ -4929,6 +4991,15 @@ img { max-width: 100%; }
                 const viewTop = viewport ? viewport.offsetTop : 0;
                 const viewWidth = viewport ? viewport.width : window.innerWidth;
                 const viewHeight = viewport ? viewport.height : window.innerHeight;
+                if (isAppleTouchDevice()) {
+                    // Safari's native selection controls always sit above page UI.
+                    // A delayed bottom sheet avoids that collision and is easier to tap.
+                    bar.classList.add('touch-sheet');
+                    bar.style.top = Math.max(viewTop + 8, viewTop + viewHeight - bh - 12) + 'px';
+                    bar.style.left = (viewLeft + viewWidth / 2) + 'px';
+                    return;
+                }
+                bar.classList.remove('touch-sheet');
                 let top = rect.top - bh - 10;
                 if (top < viewTop + 8) top = rect.bottom + 10; // flip below if no room above
                 top = Math.max(viewTop + 8, Math.min(top, viewTop + viewHeight - bh - 8));
@@ -4956,9 +5027,9 @@ img { max-width: 100%; }
             bar.addEventListener('pointercancel', finishBarInteraction);
 
             content.addEventListener('pointerup', event => {
-                scheduleShow(event.pointerType === 'touch' ? 180 : 0);
+                scheduleShow(event.pointerType === 'touch' ? 420 : 0);
             });
-            if (!window.PointerEvent) content.addEventListener('touchend', () => scheduleShow(180));
+            if (!window.PointerEvent) content.addEventListener('touchend', () => scheduleShow(420));
 
             document.addEventListener('selectionchange', () => {
                 const sel = window.getSelection();
@@ -4967,7 +5038,7 @@ img { max-width: 100%; }
                 } else {
                     // iPad text-selection handles do not reliably emit mouseup.
                     // Wait for Safari to settle the range, then expose the tools.
-                    scheduleShow(140);
+                    scheduleShow(isAppleTouchDevice() ? 420 : 140);
                 }
             });
             content.addEventListener('scroll', hide);
@@ -5032,15 +5103,16 @@ img { max-width: 100%; }
             const scrollFrac = pane => { const max = pane.scrollHeight - pane.clientHeight; return max > 0 ? pane.scrollTop / max : 0; };
             const BLOCK_SEL = 'p, li, h1, h2, h3, h4, h5, h6, blockquote, td, th, pre';
             const longWord = s => { const w = (String(s || '').match(/\p{L}{6,}/gu) || []); w.sort((a, b) => b.length - a.length); return w[0] || ''; };
+            const normaliseText = s => String(s || '').replace(/\s+/g, ' ').trim();
             const topReadAnchor = () => {
                 const top = content.scrollTop + 6;
                 for (const b of content.querySelectorAll(BLOCK_SEL)) {
-                    if (b.offsetTop + b.offsetHeight > top && (b.textContent || '').trim()) return longWord(b.textContent);
+                    if (b.offsetTop + b.offsetHeight > top && (b.textContent || '').trim()) return normaliseText(b.textContent).slice(0, 140) || longWord(b.textContent);
                 }
                 return '';
             };
-            const findBlockWith = word => {
-                for (const b of content.querySelectorAll(BLOCK_SEL)) if ((b.textContent || '').includes(word)) return b;
+            const findBlockWith = anchor => {
+                for (const b of content.querySelectorAll(BLOCK_SEL)) if (normaliseText(b.textContent).includes(anchor)) return b;
                 return null;
             };
             const editorYForIndex = (ta, idx) => {
@@ -5074,9 +5146,11 @@ img { max-width: 100%; }
                 });
             } else {
                 const frac = scrollFrac(editor);
-                // Char near the top of the editor viewport → a distinctive word there.
-                const approxIdx = Math.round(frac * editor.value.length);
-                const anchor = longWord(editor.value.slice(approxIdx, approxIdx + 240)) || longWord(editor.value.slice(Math.max(0, approxIdx - 240), approxIdx));
+                // The caret stays with the user’s active edit. It is a much better
+                // return anchor than a proportional scroll position after reflow.
+                const approxIdx = Number.isFinite(editor.selectionStart) ? editor.selectionStart : Math.round(frac * editor.value.length);
+                const anchor = normaliseText(editor.value.slice(approxIdx, approxIdx + 240)).slice(0, 140)
+                    || normaliseText(editor.value.slice(Math.max(0, approxIdx - 240), approxIdx)).slice(-140);
                 const newContent = editor.value;
                 isEditMode = false;
                 document.body.classList.remove('edit-mode');
@@ -5095,13 +5169,13 @@ img { max-width: 100%; }
         // store — notes simply re-anchor against the new text. We refresh the catalog
         // fingerprint so the file still resolves to this id if reopened from disk.
         function commitEditedContent(newContent) {
-            pendingAnnounceOrphans = true; // surface unanchored notes only right after an edit
             if (newContent === currentFileContent) {
-                renderMarkdown(currentFileContent);
-                applyAnnotations();
-                return;
+                // The rendered view is already current; rerendering here caused
+                // repeated Edit/Done cycles to jump and stall on large documents.
+                return false;
             }
 
+            pendingAnnounceOrphans = true; // surface unanchored notes only after a real edit
             const tab = openTabs.find(t => t.id === activeTabId);
             if (tab) tab.fileContent = newContent;
             currentFileContent = newContent;
@@ -5189,15 +5263,9 @@ img { max-width: 100%; }
                     const file = new File([payload.out], payload.name, { type: 'text/markdown' });
                     if (navigator.canShare({ files: [file] })) {
                         await navigator.share({ files: [file], title: payload.name });
-                        markMdDirty(false);
-                        hasUnsavedChanges = false;
-                        const tab = openTabs.find(t => t.id === activeTabId);
-                        if (tab) { tab.sourceDirty = false; tab.annotationsDirty = false; }
-                        renderTabUI();
-                        persistTabs();
-                        updateSaveStatus('saved', 'Copy shared to Files');
-                        showToast('Portable Markdown copy shared. Choose Save to Files to keep it.');
-                        return true;
+                        updateSaveStatus('unsaved', 'Copy shared — verify save');
+                        showToast('Copy sent to the share sheet. Choose “Save to Files” to keep it; this tab remains unsaved until you reopen that copy.', 6500);
+                        return false;
                     }
                 } catch (e) {
                     if (e && e.name === 'AbortError') {
@@ -5957,6 +6025,10 @@ img { max-width: 100%; }
 
             const open = () => {
                 if (!compactLayout.matches) return;
+                const active = document.activeElement;
+                if (active && active.matches && active.matches('input, textarea, select, [contenteditable="true"]')) {
+                    active.blur();
+                }
                 if (commentsPanel.classList.contains('visible')) {
                     commentsPanel.classList.remove('visible');
                     refreshPanel();
@@ -5986,15 +6058,27 @@ img { max-width: 100%; }
             syncClosedState();
 
             // iPadOS changes the visual viewport when Safari chrome or the software
-            // keyboard appears. Keep the workspace and fixed panels inside it.
+            // keyboard appears. Coalesce its burst of resize/scroll events in one frame.
+            let viewportFrame = 0;
             const updateViewportHeight = () => {
-                const height = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+                viewportFrame = 0;
+                const viewport = window.visualViewport;
+                const height = viewport ? viewport.height : window.innerHeight;
+                const offsetTop = viewport ? viewport.offsetTop : 0;
                 document.documentElement.style.setProperty('--app-height', Math.round(height) + 'px');
+                document.documentElement.style.setProperty('--visual-viewport-top', Math.round(offsetTop) + 'px');
+            };
+            const scheduleViewportUpdate = () => {
+                if (!viewportFrame) viewportFrame = requestAnimationFrame(updateViewportHeight);
             };
             updateViewportHeight();
-            window.addEventListener('resize', updateViewportHeight);
-            window.addEventListener('orientationchange', updateViewportHeight);
-            window.visualViewport?.addEventListener('resize', updateViewportHeight);
+            window.addEventListener('resize', scheduleViewportUpdate);
+            window.addEventListener('orientationchange', scheduleViewportUpdate);
+            window.addEventListener('pageshow', scheduleViewportUpdate);
+            window.visualViewport?.addEventListener('resize', scheduleViewportUpdate);
+            window.visualViewport?.addEventListener('scroll', scheduleViewportUpdate);
+            document.addEventListener('focusin', scheduleViewportUpdate);
+            document.addEventListener('focusout', () => window.setTimeout(scheduleViewportUpdate, 180));
         }
 
         // ── Boot the new subsystems ───────────────────────────────────────────
