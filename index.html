@@ -1607,7 +1607,7 @@
             <h4>Edit, save &amp; share</h4>
             <ul class="help-feats">
                 <li><b>Edit</b> (⌘E) the raw markdown and <b>Save</b> (⌘S) it back to the file. Highlights &amp; notes can travel <b>embedded in the .md</b>, or exported as a separate <code>.json</code>.</li>
-                <li>Safari cannot overwrite an opened file directly. On iPad and iPhone, <b>Share copy</b> opens the share sheet; choose Save to Files, then reopen that copy. The current tab stays marked unsaved because Safari cannot confirm where the share was saved.</li>
+                <li>Safari cannot overwrite an opened file directly. On iPad and iPhone, <b>Share copy</b> opens the share sheet; choose Save to Files, then reopen that copy. The current tab stays marked unsaved because Safari cannot confirm where the share was saved. If sharing is unavailable, no download is attempted; use Safari and try again.</li>
                 <li>For an offline journey, open Markarium.md before losing connectivity and keep the tab available. Once loaded, the workspace makes no network requests; save important work to Files before closing the browser.</li>
                 <li><b>Wiki-links</b> <code>[[Heading]]</code> jump to headings or other open tabs; <b>backlinks</b> list what links here; plus <b>footnotes</b> and <b>PDF</b> export.</li>
                 <li><b>Math</b> write <code>$…$</code> for an inline formula or <code>$$…$$</code> for a display one (rendered with KaTeX, fully offline).</li>
@@ -5272,11 +5272,15 @@ img { max-width: 100%; }
                         updateSaveStatus('unsaved', 'Save copy cancelled');
                         return false;
                     }
-                    console.warn('File sharing unavailable; falling back to download', e);
+                    console.warn('File sharing unavailable on iPad/iPhone', e);
                 }
             }
 
-            const ok = downloadMarkdown();
+            if (isAppleTouchDevice()) {
+                updateSaveStatus('unsaved', 'Share copy unavailable');
+                showToast('This browser could not open Share copy. Try again in Safari; the document remains unsaved.', 6500);
+                return false;
+            }
             if (!ok) return false;
             markMdDirty(false);
             hasUnsavedChanges = false;

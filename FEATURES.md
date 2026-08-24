@@ -68,7 +68,7 @@ These decisions serve keyboard users, screen-reader users, voice control, browse
 | Annotation imports | Records are allow-listed, bounded and normalized; imported file identifiers cannot redirect data into another document. |
 | Data ownership | Documents and annotations stay in browser storage or user-selected files. There are no accounts, analytics or telemetry. |
 | Clipboard | Written only after the user activates a named copy control. |
-| iPad/iPhone saving | Safari cannot overwrite the selected source. **Share copy** invokes the share sheet when available so the portable Markdown can be saved to Files. The original tab stays unsaved until the saved copy is reopened, because Safari cannot verify the chosen destination. |
+| iPad/iPhone saving | Safari cannot overwrite the selected source. **Share copy** invokes the share sheet when available so the portable Markdown can be saved to Files. The original tab stays unsaved until the saved copy is reopened, because Safari cannot verify the chosen destination. If sharing is unavailable, the web edition keeps the file unsaved rather than triggering an unreliable download. |
 
 ## Desktop app additions
 

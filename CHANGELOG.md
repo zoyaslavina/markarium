@@ -18,6 +18,7 @@ All notable user-visible changes to the standalone edition are recorded here.
 
 - Browsers without direct write access now label the main action **Save copy**; on iPad and iPhone it is explicitly **Share copy** and invokes the share sheet for **Save to Files**, with a download fallback elsewhere.
 - A portable copy includes source edits and embedded annotations and preserves a browser backup. Safari shares are deliberately left marked unsaved until the user reopens the saved copy, because the browser cannot verify the share destination.
+- iPad and iPhone no longer fall back to an unreliable browser download when sharing is unavailable, preventing filename-only text artifacts; the document stays unsaved with a clear Safari retry message instead.
 
 ## 1.0.1 — 2026-08-18
 
