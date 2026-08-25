@@ -77,7 +77,7 @@ For a train or other offline session, load Markarium.md before connectivity disa
 
 The Agent Brief is a small, inert HTML comment—not an AI connection, an automatic prompt or a request to change the document. It records only simple facts and guardrails: this is a reviewed working copy; it may or may not contain revisions; whether annotations are present; how many review notes remain open; and the user’s current prompt always takes precedence. If the user asks for editing or review, it reminds a receiving agent to consider open comments and tasks one by one. A correction stays local unless an annotation explicitly states a broader style or terminology preference.
 
-No document text, comment wording or task wording is copied into the brief. The actual annotations remain in their separate embedded data block as review data, not a second prompt; their relevance comes from the user’s request. A clean Markdown export—or **Remove embedded review data**—omits both blocks.
+No document text, comment wording or task wording is copied into the brief. The actual annotations remain in their separate embedded data block as review data, not a second prompt; their relevance comes from the user’s request. Embedded review data is portable, not encrypted, so anyone who receives the file can extract it. A clean Markdown export—or **Remove embedded review data**—omits both blocks.
 
 ### Accessible and automation-friendly
 

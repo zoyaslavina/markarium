@@ -30,7 +30,7 @@ Status labels:
 | Resilient annotation anchoring | Shared | Exact text, prefix, suffix, section and block context are stored; reattachment tolerates small edits and text movement. |
 | In-document comment markers | Shared | Every attached note has a visible, keyboard-operable marker and a corresponding panel item. |
 | Go to, edit, resolve and copy | Shared | Each review item exposes explicit named actions. |
-| Embedded annotation block | Shared | Review data can travel with a Markdown file while remaining hidden from the rendered document. |
+| Embedded annotation block | Shared | Review data can travel with a Markdown file while remaining hidden from the rendered document. It is portable data, not encrypted content. |
 | Neutral Agent Brief | Standalone | Portable Markdown carries a deliberately basic, inert HTML comment with fixed review status, annotation counts and narrow handling guardrails. It contains no document or annotation wording, makes no editing request and explicitly defers to the user’s current prompt. |
 | Safe JSON import/export | Shared | Annotation records are validated and normalized; import verifies the file belongs to the open document (by stable document ID), warns on a mismatch, and offers merge, replace or cancel with a one-step undo. |
 | Raw Markdown editing | Shared | Reader and source editor live in the same workflow with save/download fallbacks. |
