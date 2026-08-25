@@ -4,6 +4,23 @@ All notable user-visible changes to the standalone edition are recorded here.
 
 ## Unreleased
 
+### Editing, restoration and review history
+
+- Manually integrated the collaborator’s compatible restoration and editing improvements without replacing the iPad-first navigation or Share-copy workflow.
+- Supporting desktop browsers now request write access during Open, retain file handles in local IndexedDB, reconnect compatible handles to restored tabs and adopt a handle when a restored document is reopened.
+- Pressing **Done** saves changed source automatically only when a real in-place write handle exists. On iPad/iPhone, Done never opens Share; **Share copy** remains an explicit user action.
+- Long-document editing avoids resetting an unchanged textarea, contains editor layout/paint work, disables expensive browser spell-checking above 20,000 characters and inserts Tab text without discarding native undo history.
+- Fixed restored-tab startup so outline folding state exists before the first document render.
+- In Edit mode, ⌘/Ctrl+Z and ⌘/Ctrl+Shift+Z use native text undo/redo. In View mode, the same shortcuts undo/redo ordered highlights, colours, comments, tasks, resolves, deletes, re-attachments and imports.
+- View-mode review history is independent per document, exists only for the current page session and is bounded to 50 steps / approximately 4 MB per document. Import undo now participates in this same ordered history instead of maintaining a conflicting snapshot.
+
+### Agent hand-off
+
+- Portable Markdown copies now include a small hidden Agent Brief that identifies the file as a reviewed working copy, reports whether annotations and open review notes exist, and tells receiving agents that the current user prompt remains authoritative.
+- The Agent Brief contains no document text or annotation wording, makes no request by itself, and describes annotations as review data rather than a second prompt. Broader style or terminology scope applies only when an annotation explicitly says so.
+- Clean Markdown and **Remove embedded review data** omit both the Agent Brief and annotation payload. Reopening a portable copy strips the brief from the editor and regenerates one current block on the next save.
+- Fixed the non-iPad portable-download fallback so browsers without an in-place file handle download the copy instead of failing on an undefined save result.
+
 ### iPad, phone and split-screen work
 
 - Added a focus-managed navigation drawer so Open file, New document and the document outline remain available when the permanent sidebar no longer fits.

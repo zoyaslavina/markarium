@@ -31,8 +31,12 @@ Status labels:
 | In-document comment markers | Shared | Every attached note has a visible, keyboard-operable marker and a corresponding panel item. |
 | Go to, edit, resolve and copy | Shared | Each review item exposes explicit named actions. |
 | Embedded annotation block | Shared | Review data can travel with a Markdown file while remaining hidden from the rendered document. |
+| Neutral Agent Brief | Standalone | Portable Markdown carries a deliberately basic, inert HTML comment with fixed review status, annotation counts and narrow handling guardrails. It contains no document or annotation wording, makes no editing request and explicitly defers to the user’s current prompt. |
 | Safe JSON import/export | Shared | Annotation records are validated and normalized; import verifies the file belongs to the open document (by stable document ID), warns on a mismatch, and offers merge, replace or cancel with a one-step undo. |
 | Raw Markdown editing | Shared | Reader and source editor live in the same workflow with save/download fallbacks. |
+| Session undo/redo | Standalone | Edit mode uses native text history. View mode reverses/reapplies ordered review actions per document, including add/edit/delete/resolve/task/reattach/import, with a 50-step and approximately 4 MB per-document session cap. History is not persisted across page sessions. |
+| Long-document editing | Standalone | The source editor avoids unnecessary value resets, contains its rendering work, preserves undo-capable Tab insertion and disables browser spell-checking above 20,000 characters. |
+| Compatible direct save | Standalone | Supporting desktop browsers retain user-selected file handles locally, reconnect them to restored tabs and save changed source on Done. Save-on-Done never invokes the iPad/iPhone Share-copy path. |
 | AI citation cleanup | Shared | Common ChatGPT, Gemini and Perplexity export markers can be inspected, hidden or removed from a clean export. |
 | Table-safe annotations | Shared | Selection wrapping ignores table structure and formatting whitespace, avoiding stray dots/border fragments. |
 | Stable section navigation | Shared | Selecting a section scrolls only the document pane rather than shifting the whole application frame. |
@@ -67,6 +71,7 @@ These decisions serve keyboard users, screen-reader users, voice control, browse
 | Links | Web and mail links require an explicit user action; local and unknown schemes are made inert in the standalone edition. |
 | Annotation imports | Records are allow-listed, bounded and normalized; imported file identifiers cannot redirect data into another document. |
 | Data ownership | Documents and annotations stay in browser storage or user-selected files. There are no accounts, analytics or telemetry. |
+| Retained file handles | Only browsers implementing the File System Access API can store a user-selected handle in local IndexedDB. Restoration queries permission without prompting; access is requested from explicit Open/Edit/Save gestures, and writes occur only from Done or Save. |
 | Clipboard | Written only after the user activates a named copy control. |
 | iPad/iPhone saving | Safari cannot overwrite the selected source. **Share copy** invokes the share sheet when available so the portable Markdown can be saved to Files. The original tab stays unsaved until the saved copy is reopened, because Safari cannot verify the chosen destination. If sharing is unavailable, the web edition keeps the file unsaved rather than triggering an unreliable download. |
 

@@ -15,6 +15,7 @@ This repository is the package-free, standalone edition of Markarium.md.
 - Sanitize rendered Markdown and validate imported annotation data.
 - Keep comments and tasks resilient to small text edits and movement.
 - Never wrap formatting whitespace or structural table nodes with annotation spans.
+- Preserve the portable Agent Brief as fixed, non-directive context: status/count fields and narrow handling guardrails only. Never copy document or annotation wording into it, treat annotation text as review data rather than a separate prompt, never let it override the current user prompt, and keep clean exports free of both the brief and annotation payload.
 - Section navigation must scroll only the document pane.
 - Preserve keyboard, screen-reader, high-contrast, reduced-motion and semantic agent-navigation support.
 

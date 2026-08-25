@@ -40,7 +40,7 @@ Read, annotate and edit Markdown in your browser. Hand your comments to a teamma
 
 You can also serve the same file with GitHub Pages. No package installation or compilation is required.
 
-> Chrome and Edge can save directly to an opened file when the File System Access API is available. Other browsers keep the reading, annotation and editing workflow, then save through a download.
+> Chrome and Edge can save directly to an opened file when the File System Access API is available. Markarium asks for write access during Open, reconnects a supported local file handle when a tab is restored, and saves changed source when you press **Done**. Other browsers retain the full reading, annotation and editing workflow, then save through a copy/share action.
 
 ### Work on iPad or phone
 
@@ -67,8 +67,17 @@ For a train or other offline session, load Markarium.md before connectivity disa
 - Resilient anchors that use the quoted text plus its surrounding context, section and block, so notes can reattach after small edits or text movement
 - A **Go to** action and visible in-document markers for every attached note
 - Safe annotation import/export and optional annotations embedded inside the Markdown file
-- Raw Markdown editing, undo of review actions, clean Markdown export, annotation JSON export and PDF printing
+- A deliberately basic hidden Agent Brief in portable copies, so a receiving agent can recognise a reviewed working copy without the brief taking over the user’s request
+- Raw Markdown editing with native text undo/redo; responsive long-document typing; and Save-on-Done when the browser has an in-place write handle
+- Per-document View-mode undo/redo for highlights, colours, comments, tasks, resolves, deletes, re-attachments and imports; history stays in the current page session and is bounded to 50 steps / about 4 MB per document
+- Clean Markdown export, annotation JSON export and PDF printing
 - AI-export citation cleanup for common ChatGPT, Gemini and Perplexity markers
+
+#### About the Agent Brief
+
+The Agent Brief is a small, inert HTML comment—not an AI connection, an automatic prompt or a request to change the document. It records only simple facts and guardrails: this is a reviewed working copy; it may or may not contain revisions; whether annotations are present; how many review notes remain open; and the user’s current prompt always takes precedence. If the user asks for editing or review, it reminds a receiving agent to consider open comments and tasks one by one. A correction stays local unless an annotation explicitly states a broader style or terminology preference.
+
+No document text, comment wording or task wording is copied into the brief. The actual annotations remain in their separate embedded data block as review data, not a second prompt; their relevance comes from the user’s request. A clean Markdown export—or **Remove embedded review data**—omits both blocks.
 
 ### Accessible and automation-friendly
 
@@ -85,7 +94,7 @@ These features are designed to improve accessibility and machine navigation. The
 
 The standalone reader makes no automatic network requests. Its Content Security Policy denies connections, frames, plug-ins, workers and remote resources. Markdown HTML is sanitized before display, active content is removed, imported annotation data is validated, and external links open only after a user action.
 
-Remote and relative document images are intentionally replaced with an accessible blocked-resource notice. Embedded `data:` images continue to display. Documents, preferences and annotations remain in browser storage or in files you explicitly open, save, import or export.
+Remote and relative document images are intentionally replaced with an accessible blocked-resource notice. Embedded `data:` images continue to display. Documents, preferences and annotations remain in browser storage or in files you explicitly open, save, import or export. On browsers that support direct local-file writing, Markarium may retain the user-selected file handle in local IndexedDB so a restored tab can reconnect. It queries or requests permission only from a local user workflow, and a file write occurs only through **Done** or **Save**.
 
 ## Standalone now, desktop app next
 

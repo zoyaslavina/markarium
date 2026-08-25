@@ -37,6 +37,14 @@ jobs:
           grep -Fq 'id="mobileSidebar"' index.html
           grep -Fq 'viewport-fit=cover' index.html
           grep -Fq 'savePortableMarkdownCopy' index.html
+          grep -Fq 'markarium:agent-brief:v1' index.html
+          grep -Fq 'function buildAgentBrief' index.html
+          grep -Fq 'const ok = downloadMarkdown();' index.html
+          grep -Fq 'function attachStoredHandles' index.html
+          grep -Fq 'EDITOR_SPELLCHECK_MAX_CHARS = 20000' index.html
+          grep -Fq 'function undoReviewChange' index.html
+          grep -Fq 'function redoReviewChange' index.html
+          grep -Fq 'if (mdDirty && currentFileHandle) saveMarkdownToFile();' index.html
           if grep -Eq 'mdrNative|<script[^>]+src="https?://|<link[^>]+rel="stylesheet"[^>]+href="https?://' index.html; then
             echo 'Native API or remote runtime dependency found in standalone HTML.' >&2
             exit 1
