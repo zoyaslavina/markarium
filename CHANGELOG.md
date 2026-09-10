@@ -6,6 +6,7 @@ All notable user-visible changes to the standalone edition are recorded here.
 
 ### Editing, restoration and review history
 
+- Fixed reading/Notes ↔ Edit jumps in long documents. Transitions now track the visible passage through Markdown source ranges and measured wrapped lines rather than page-relative offsets, whole-document text searches or scroll percentages. Done follows manual editor scrolling even when the caret is elsewhere; unchanged round trips retain their original text position.
 - Manually integrated the collaborator’s compatible restoration and editing improvements without replacing the iPad-first navigation or Share-copy workflow.
 - Supporting desktop browsers now request write access during Open, retain file handles in local IndexedDB, reconnect compatible handles to restored tabs and adopt a handle when a restored document is reopened.
 - Pressing **Done** saves changed source automatically only when a real in-place write handle exists. On iPad/iPhone, Done never opens Share; **Share copy** remains an explicit user action.

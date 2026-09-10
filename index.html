@@ -1608,7 +1608,7 @@
 
             <h4>Edit, save &amp; share</h4>
             <ul class="help-feats">
-                <li><b>Edit</b> (⌘E) the raw markdown and <b>Save</b> (⌘S) it back to the file. On browsers with direct write access, <b>Done</b> saves changed source in place; restored tabs reconnect their local file handle when the browser permits it. Long documents disable browser spell-checking to keep typing responsive.</li>
+                <li><b>Edit</b> (⌘E) the raw markdown and <b>Save</b> (⌘S) it back to the file. <b>Edit</b> and <b>Done</b> keep the visible passage in view, including while reviewing Notes or after scrolling in the editor. On browsers with direct write access, <b>Done</b> saves changed source in place; restored tabs reconnect their local file handle when the browser permits it. Long documents disable browser spell-checking to keep typing responsive.</li>
                 <li>In <b>Edit</b>, undo/redo uses the browser’s native text history. In <b>View</b>, it covers highlights, colours, comments, tasks, resolves, deletes, re-attachments and imports. Review history is kept only for this page session, separately per document, and is bounded to 50 steps / about 4 MB per document.</li>
                 <li>Portable copies include a deliberately basic hidden <b>Agent Brief</b> plus any embedded highlights &amp; notes. The brief is inert text, not an AI connection or a request: it records simple review status and counts, says the file may or may not contain revisions, and keeps your current prompt in charge. It contains none of the document or annotation wording; the separate annotations remain review data, not a second prompt. Embedded review data is portable, not encrypted, so use a clean export when sharing without notes. Clean exports omit both hidden blocks.</li>
                 <li>Safari cannot overwrite an opened file directly. On iPad and iPhone, <b>Share copy</b> opens the share sheet; choose Save to Files, then reopen that copy. The current tab stays marked unsaved because Safari cannot confirm where the share was saved. If sharing is unavailable, no download is attempted; use Safari and try again.</li>
@@ -1792,6 +1792,11 @@
         let openTabs = [];           // Array of tab objects
         let foldLevel = Infinity;    // outline fold depth; needed during restored-tab render
         let activeTabId = null;      // Currently active tab ID
+        let readerSourceBlocks = [];
+        let readerSourceOwners = new WeakMap();
+        let renderedSource = '';
+        let editViewAnchor = null;
+        let editTransition = 0;
         const MAX_TABS = 10;
         // Tab object structure:
         // { id, fileId, fileName, fileContent, fileHandle, scrollPosition, sourceDirty, annotationsDirty }
@@ -2737,8 +2742,48 @@
         function renderMarkdown(text) {
             // Parse + sanitize first (so an untrusted .md can never run scripts),
             // then decorate any leaked LLM citation markers in the rendered DOM.
-            const rawHtml = marked.parse(text || '');
+            // Keep source ranges on actual Markdown blocks. Text searches over the
+            // entire document confuse repeated headings and rendered formatting.
+            // Normalize newlines exactly as the lexer and textarea do.
+            renderedSource = String(text || '').replace(/\r\n?/g, '\n');
+            const tokens = marked.lexer(renderedSource);
+            const ranges = new Map();
+            let cursor = 0;
+            tokens.forEach(token => {
+                const start = renderedSource.indexOf(token.raw, cursor);
+                if (start < 0) return;
+                ranges.set(token, { start, end: start + token.raw.length });
+                cursor = start + token.raw.length;
+            });
+            const marker = 'data-mdr-' + Math.random().toString(36).slice(2);
+            const blocks = [];
+            const markBlock = (token, html) => {
+                if (!ranges.has(token) || typeof html !== 'string') return html;
+                return html.replace(/<[a-z][\w-]*(?=[\s/>])/i, tag => {
+                    const id = blocks.push(ranges.get(token)) - 1;
+                    return tag + ' ' + marker + '="' + id + '"';
+                });
+            };
+            const renderer = new marked.Renderer();
+            for (const name of ['heading', 'paragraph', 'list', 'blockquote', 'code', 'table', 'hr', 'html']) {
+                const render = renderer[name];
+                renderer[name] = function(token) {
+                    return markBlock(token, render.call(this, token));
+                };
+            }
+            const extensions = { ...marked.defaults.extensions,
+                renderers: { ...marked.defaults.extensions?.renderers } };
+            for (const [name, render] of Object.entries(extensions.renderers)) {
+                extensions.renderers[name] = function(token) { return markBlock(token, render.call(this, token)); };
+            }
+            const rawHtml = marked.parser(tokens, { ...marked.defaults, renderer, extensions });
             content.innerHTML = DOMPurify.sanitize(rawHtml, { USE_PROFILES: { html: true } });
+            readerSourceBlocks = Array.from(content.querySelectorAll('[' + marker + ']'), element => {
+                const range = blocks[Number(element.getAttribute(marker))];
+                element.removeAttribute(marker);
+                return { element, ...range };
+            });
+            readerSourceOwners = new WeakMap(readerSourceBlocks.map(block => [block.element, block]));
             renderMath();
             secureRenderedResources();
             enhanceCodeBlocks();
@@ -5391,6 +5436,8 @@ img { max-width: 100%; }
         }
 
         function exitEditIfActive() {
+            editTransition++;
+            editViewAnchor = null;
             if (isEditMode) {
                 isEditMode = false;
                 document.body.classList.remove('edit-mode');
@@ -5398,6 +5445,113 @@ img { max-width: 100%; }
                 if (btn) { btn.textContent = '✎ Edit'; btn.classList.remove('active'); btn.setAttribute('aria-pressed', 'false'); }
             }
             mdDirty = false;
+        }
+
+        // Match words only inside their source block. Annotation spans may split
+        // text nodes, so rebuild these DOM ranges after an annotation or rerender.
+        function sourceWords(block) {
+            const words = [];
+            let cursor = block.start;
+            const walker = document.createTreeWalker(block.element, NodeFilter.SHOW_TEXT);
+            while (walker.nextNode()) {
+                const node = walker.currentNode;
+                if (node.parentElement.closest('button, .katex, .footnote-ref, .footnote-back')) continue;
+                let owner = node.parentElement;
+                while (owner !== block.element && !readerSourceOwners.has(owner)) owner = owner.parentElement;
+                if (owner !== block.element) continue;
+                for (const match of node.data.matchAll(/[\p{L}\p{M}\p{N}_]+/gu)) {
+                    const index = renderedSource.indexOf(match[0], cursor);
+                    if (index < 0 || index + match[0].length > block.end) continue;
+                    const range = document.createRange();
+                    range.setStart(node, match.index);
+                    range.setEnd(node, match.index + 1);
+                    words.push({ index, range });
+                    cursor = index + match[0].length;
+                }
+            }
+            return words;
+        }
+
+        function captureReaderPosition() {
+            const top = content.getBoundingClientRect().top;
+            for (const block of readerSourceBlocks) {
+                if (!block.element.isConnected || !block.element.getClientRects().length) continue;
+                const rect = block.element.getBoundingClientRect();
+                if (rect.bottom <= top + 6) continue;
+                for (const word of sourceWords(block)) {
+                    const r = word.range.getBoundingClientRect();
+                    if (r.height && r.bottom > top + 6) return { index: word.index, offset: r.top - top };
+                }
+                // A raw HTML opening tag can enclose later Markdown blocks whose
+                // source ranges are separate. Do not anchor to that outer shell.
+                if (rect.top >= top && !readerSourceBlocks.some(other => other !== block && block.element.contains(other.element))) {
+                    return { index: block.start, offset: rect.top - top };
+                }
+            }
+            return { index: 0, offset: 0 };
+        }
+
+        function restoreReaderPosition(anchor) {
+            const block = readerSourceBlocks.find(b => b.end > anchor.index)
+                || readerSourceBlocks[readerSourceBlocks.length - 1];
+            if (!block) return;
+            // Source can have moved into a folded section while editing.
+            content.querySelectorAll('.heading-fold.collapsed').forEach(button => {
+                if (sectionSiblings(button.parentElement).some(el => el === block.element || el.contains(block.element))) {
+                    toggleHeadingFold(button.parentElement, button, false);
+                }
+            });
+            const words = sourceWords(block);
+            const word = words.reduce((best, next) => !best || Math.abs(next.index - anchor.index) < Math.abs(best.index - anchor.index) ? next : best, null);
+            const rect = word ? word.range.getBoundingClientRect() : block.element.getBoundingClientRect();
+            content.scrollTop += rect.top - content.getBoundingClientRect().top - anchor.offset;
+        }
+
+        // Lay out the complete source once using the textarea's real typography
+        // and available width. DOM Ranges locate wrapped lines without inserting
+        // markers (which themselves can alter wrapping) or estimating percentages.
+        function withEditorLayout(editor, callback) {
+            const mirror = document.createElement('div');
+            const style = getComputedStyle(editor);
+            for (const name of ['fontFamily', 'fontSize', 'fontWeight', 'fontStyle', 'fontVariant',
+                'lineHeight', 'letterSpacing', 'wordSpacing', 'textIndent', 'textAlign',
+                'textTransform', 'direction', 'padding', 'tabSize', 'wordBreak', 'overflowWrap']) {
+                mirror.style[name] = style[name];
+            }
+            Object.assign(mirror.style, { position: 'fixed', left: '-100000px', top: '0',
+                visibility: 'hidden', width: editor.clientWidth + 'px', boxSizing: 'border-box',
+                whiteSpace: 'pre-wrap', height: 'auto', border: '0', margin: '0' });
+            mirror.setAttribute('aria-hidden', 'true');
+            const text = document.createTextNode(editor.value + '\u200b');
+            mirror.appendChild(text);
+            document.body.appendChild(mirror);
+            try {
+                const range = document.createRange();
+                const top = mirror.getBoundingClientRect().top;
+                const yAt = index => {
+                    const i = Math.max(0, Math.min(editor.value.length, index));
+                    range.setStart(text, i);
+                    range.setEnd(text, i + 1);
+                    return range.getBoundingClientRect().top - top;
+                };
+                return callback(yAt, parseFloat(style.lineHeight) || parseFloat(style.fontSize) * 1.75);
+            } finally { mirror.remove(); }
+        }
+
+        function captureEditorPosition(editor) {
+            // The caret can be far offscreen after manual scrolling. Anchor the
+            // first visible source line instead of jumping back to that old caret.
+            return withEditorLayout(editor, (yAt, lineHeight) => {
+                let low = 0, high = editor.value.length;
+                while (low < high) {
+                    const mid = Math.floor((low + high) / 2);
+                    if (yAt(mid) + lineHeight <= editor.scrollTop + 6) low = mid + 1;
+                    else high = mid;
+                }
+                const nextWord = /[\p{L}\p{N}_]/u.exec(editor.value.slice(low));
+                const index = nextWord ? low + nextWord.index : low;
+                return { index, offset: yAt(index) - editor.scrollTop };
+            });
         }
 
         function setEditMode(on) {
@@ -5408,39 +5562,12 @@ img { max-width: 100%; }
             const editToggleBtn = document.getElementById('editToggleBtn');
             if (!editor) return;
 
-            // Keep your place across the switch by anchoring to a distinctive word
-            // at the top of the current view (the two views' heights differ too much
-            // for a plain scroll-fraction). Falls back to fraction if no word is found.
-            const scrollFrac = pane => { const max = pane.scrollHeight - pane.clientHeight; return max > 0 ? pane.scrollTop / max : 0; };
-            const BLOCK_SEL = 'p, li, h1, h2, h3, h4, h5, h6, blockquote, td, th, pre';
-            const longWord = s => { const w = (String(s || '').match(/\p{L}{6,}/gu) || []); w.sort((a, b) => b.length - a.length); return w[0] || ''; };
-            const normaliseText = s => String(s || '').replace(/\s+/g, ' ').trim();
-            const topReadAnchor = () => {
-                const top = content.scrollTop + 6;
-                for (const b of content.querySelectorAll(BLOCK_SEL)) {
-                    if (b.offsetTop + b.offsetHeight > top && (b.textContent || '').trim()) return normaliseText(b.textContent).slice(0, 140) || longWord(b.textContent);
-                }
-                return '';
-            };
-            const findBlockWith = anchor => {
-                for (const b of content.querySelectorAll(BLOCK_SEL)) if (normaliseText(b.textContent).includes(anchor)) return b;
-                return null;
-            };
-            const editorYForIndex = (ta, idx) => {
-                const cs = getComputedStyle(ta), m = document.createElement('div');
-                ['fontFamily', 'fontSize', 'fontWeight', 'lineHeight', 'letterSpacing', 'padding', 'tabSize', 'boxSizing'].forEach(p => { m.style[p] = cs[p]; });
-                m.style.cssText += ';position:absolute;left:-9999px;top:0;visibility:hidden;height:auto;white-space:pre-wrap;word-wrap:break-word;width:' + ta.clientWidth + 'px';
-                m.textContent = ta.value.slice(0, idx) || '.';
-                document.body.appendChild(m);
-                const y = m.scrollHeight;
-                document.body.removeChild(m);
-                return y;
-            };
+            const transition = ++editTransition;
+            const file = currentFile;
 
             if (on) {
-                const anchor = topReadAnchor();
-                const frac = scrollFrac(content);
-                const src = currentFileContent || '';
+                const anchor = captureReaderPosition();
+                const src = (currentFileContent || '').replace(/\r\n?/g, '\n');
                 editor.spellcheck = src.length <= EDITOR_SPELLCHECK_MAX_CHARS;
                 // Avoid resetting the textarea/native undo stack when repeatedly
                 // switching between Edit and View without a content change.
@@ -5450,23 +5577,21 @@ img { max-width: 100%; }
                 document.body.classList.add('edit-mode');
                 if (editToggleBtn) { editToggleBtn.textContent = '✓ Done'; editToggleBtn.classList.add('active'); editToggleBtn.setAttribute('aria-pressed', 'true'); }
                 hideFloatingToolbar();
-                editor.focus();
+                editor.focus({ preventScroll: true });
+                editor.setSelectionRange(anchor.index, anchor.index);
+                editViewAnchor = { file, anchor, source: editor.value, scrollTop: null, width: editor.clientWidth };
                 requestAnimationFrame(() => {
-                    const idx = anchor ? editor.value.indexOf(anchor) : -1;
-                    if (idx >= 0) {
-                        try { editor.setSelectionRange(idx, idx); } catch (e) {}
-                        editor.scrollTop = Math.max(0, editorYForIndex(editor, idx) - 60);
-                    } else {
-                        editor.scrollTop = frac * (editor.scrollHeight - editor.clientHeight);
-                    }
+                    if (transition !== editTransition || !isEditMode || file !== currentFile) return;
+                    withEditorLayout(editor, yAt => { editor.scrollTop = Math.max(0, yAt(anchor.index) - anchor.offset); });
+                    editViewAnchor = { file, anchor, source: editor.value, scrollTop: editor.scrollTop, width: editor.clientWidth };
                 });
             } else {
-                const frac = scrollFrac(editor);
-                // The caret stays with the user’s active edit. It is a much better
-                // return anchor than a proportional scroll position after reflow.
-                const approxIdx = Number.isFinite(editor.selectionStart) ? editor.selectionStart : Math.round(frac * editor.value.length);
-                const anchor = normaliseText(editor.value.slice(approxIdx, approxIdx + 240)).slice(0, 140)
-                    || normaliseText(editor.value.slice(Math.max(0, approxIdx - 240), approxIdx)).slice(-140);
+                const unchangedView = editViewAnchor && editViewAnchor.file === file
+                    && editViewAnchor.source === editor.value
+                    && editViewAnchor.width === editor.clientWidth
+                    && (editViewAnchor.scrollTop === null || Math.abs(editViewAnchor.scrollTop - editor.scrollTop) < 1);
+                const anchor = unchangedView ? editViewAnchor.anchor : captureEditorPosition(editor);
+                editViewAnchor = null;
                 const newContent = editor.value;
                 isEditMode = false;
                 document.body.classList.remove('edit-mode');
@@ -5477,9 +5602,8 @@ img { max-width: 100%; }
                 // Edit; its explicit Share copy action remains unchanged.
                 if (mdDirty && currentFileHandle) saveMarkdownToFile();
                 requestAnimationFrame(() => {
-                    const el = anchor ? findBlockWith(anchor) : null;
-                    if (el) content.scrollTop = Math.max(0, el.offsetTop - 12);
-                    else content.scrollTop = frac * (content.scrollHeight - content.clientHeight);
+                    if (transition !== editTransition || isEditMode || file !== currentFile) return;
+                    restoreReaderPosition(anchor);
                 });
             }
         }

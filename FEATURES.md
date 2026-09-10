@@ -36,6 +36,7 @@ Status labels:
 | Raw Markdown editing | Shared | Reader and source editor live in the same workflow with save/download fallbacks. |
 | Session undo/redo | Standalone | Edit mode uses native text history. View mode reverses/reapplies ordered review actions per document, including add/edit/delete/resolve/task/reattach/import, with a 50-step and approximately 4 MB per-document session cap. History is not persisted across page sessions. |
 | Long-document editing | Standalone | The source editor avoids unnecessary value resets, contains its rendering work, preserves undo-capable Tab insertion and disables browser spell-checking above 20,000 characters. |
+| Reading/editing position | Standalone | Edit and Done follow the visible passage using Markdown source ranges and measured text layout, including formatted text, repeated sections, Notes-panel layouts and manual editor scrolling. |
 | Compatible direct save | Standalone | Supporting desktop browsers retain user-selected file handles locally, reconnect them to restored tabs and save changed source on Done. Save-on-Done never invokes the iPad/iPhone Share-copy path. |
 | AI citation cleanup | Shared | Common ChatGPT, Gemini and Perplexity export markers can be inspected, hidden or removed from a clean export. |
 | Table-safe annotations | Shared | Selection wrapping ignores table structure and formatting whitespace, avoiding stray dots/border fragments. |

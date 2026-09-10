@@ -69,6 +69,7 @@ For a train or other offline session, load Markarium.md before connectivity disa
 - Safe annotation import/export and optional annotations embedded inside the Markdown file
 - A deliberately basic hidden Agent Brief in portable copies, so a receiving agent can recognise a reviewed working copy without the brief taking over the user’s request
 - Raw Markdown editing with native text undo/redo; responsive long-document typing; and Save-on-Done when the browser has an in-place write handle
+- Switching between reading/Notes and Edit keeps the same visible passage, including after scrolling in the editor or changing the window width.
 - Per-document View-mode undo/redo for highlights, colours, comments, tasks, resolves, deletes, re-attachments and imports; history stays in the current page session and is bounded to 50 steps / about 4 MB per document
 - Clean Markdown export, annotation JSON export and PDF printing
 - AI-export citation cleanup for common ChatGPT, Gemini and Perplexity markers
