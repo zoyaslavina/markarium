@@ -4,6 +4,10 @@ All notable user-visible changes to the standalone edition are recorded here.
 
 ## Unreleased
 
+### Release information
+
+- Replaced the pre-release desktop-app message with links to the available Markdown editor for Mac on markarium.com and the Mac App Store.
+
 ### Editing, restoration and review history
 
 - Fixed reading/Notes ↔ Edit jumps in long documents. Transitions now track the visible passage through Markdown source ranges and measured wrapped lines rather than page-relative offsets, whole-document text searches or scroll percentages. Done follows manual editor scrolling even when the caret is elsewhere; unchanged round trips retain their original text position.

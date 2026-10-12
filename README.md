@@ -13,9 +13,15 @@ Read, annotate and edit Markdown in your browser. Hand your comments to a teamma
 
 ---
 
-**Markarium.md** is the single, self-contained [`index.html`](index.html). It renders Markdown, supports durable highlights, comments and tasks, edits the original source, and exports the result. The parser, sanitizer, math renderer, fonts and interface assets are embedded in the file, while a strict Content Security Policy prevents automatic network access. Markarium.md desktop app with expanded functionality is coming soon. 
+**Markarium.md** is the single, self-contained [`index.html`](index.html). It renders Markdown, supports durable highlights, comments and tasks, edits the original source, and exports the result. The parser, sanitizer, math renderer, fonts and interface assets are embedded in the file, while a strict Content Security Policy prevents automatic network access.
+
+For a native **Markdown editor for Mac**, visit [markarium.com](https://markarium.com/) or [get Markarium.md on the Mac App Store](https://apps.apple.com/app/markarium-md/id6808595905?mt=12). The Mac app adds native file handling, automatic local-image resolution, Mermaid diagrams and other desktop integrations while keeping documents private and offline.
 
 <p align="center">
+  <a href="https://markarium.com/"><strong>Markarium.md for Mac</strong></a>
+  &nbsp;·&nbsp;
+  <a href="https://apps.apple.com/app/markarium-md/id6808595905?mt=12"><strong>Mac App Store</strong></a>
+  &nbsp;·&nbsp;
   <a href="https://zoyaslavina.github.io/markarium/"><strong>Open the web edition</strong></a>
   &nbsp;·&nbsp;
   <a href="https://github.com/zoyaslavina/markarium/releases/latest/download/markarium.html"><strong>Download the latest HTML</strong></a>
@@ -97,9 +103,9 @@ The standalone reader makes no automatic network requests. Its Content Security 
 
 Remote and relative document images are intentionally replaced with an accessible blocked-resource notice. Embedded `data:` images continue to display. Documents, preferences and annotations remain in browser storage or in files you explicitly open, save, import or export. On browsers that support direct local-file writing, Markarium may retain the user-selected file handle in local IndexedDB so a restored tab can reconnect. It queries or requests permission only from a local user workflow, and a file write occurs only through **Done** or **Save**.
 
-## Standalone now, desktop app next
+## Standalone edition and Markdown editor for Mac
 
-This repository is intentionally the portable, package-free edition. A desktop app is coming that builds on the same reading and review workflow with native file handling, automatic local-image resolution, Mermaid diagrams, expanded code/syntax tooling, richer exports and other desktop integrations. The standalone edition already includes offline formulas through KaTeX.
+This repository remains the portable, package-free edition. The native [Markdown editor for Mac](https://markarium.com/) is available on the [Mac App Store](https://apps.apple.com/app/markarium-md/id6808595905?mt=12). It builds on the same private reading and review workflow with native file handling, automatic local-image resolution, Mermaid diagrams, expanded code and syntax tooling, richer exports and other desktop integrations. The standalone edition already includes offline formulas through KaTeX.
 
 The product boundary and release checklist live in [`FEATURES.md`](FEATURES.md), so the distinctions remain documented as both editions evolve.
 
